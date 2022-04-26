@@ -1,6 +1,5 @@
-console.log('#### shopflex');
-alert('shopflex');
-/*
+console.log('#### shopflex 1111');
+
 var GTAG_ID = 'G-HP0GTQL69G';  // UA-174018939-1
 
 (function (i, s, o, g, r, a, m) {
@@ -11,4 +10,3 @@ var GTAG_ID = 'G-HP0GTQL69G';  // UA-174018939-1
  })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
  
 ga('create', GTAG_ID, 'auto');
-*/
