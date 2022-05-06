@@ -115,15 +115,12 @@ function appendProduct(productInfo) {
             </div>
             <div data-ssr-product-item-price-top=""></div>
             <div class="product-item-price body-font display-center">
-              <!-- 原价 -->
               <span data-product-item-price="${compare_at_price * 100}" class="product-item-origin-price notranslate">$${compare_at_price}</span>
               <span class="product-item-sale-price">
-                <!-- 现价 -->
                 <span data-product-item-price="${price * 100}" data-from="1">From $${price}</span>
               </span>
               <span class="product-item-save-price">
                 Save
-                <!-- 节省 -->
                 <span class="notranslate" data-product-item-price="${savePrice * 100}">$${savePrice}</span>
               </span>
             </div>
