@@ -1,15 +1,16 @@
 let isMobile = false
 let pcSwiperSlideStyle = ''
-let pcSwiperSlideNum = 0
+let predictNum = 0
 const productListDoms = (function() {
   const mobile = document.querySelector('.container-fluid>.product-recommend>.row')
   const pc = document.querySelector('.container-fluid>.product-recommend>.product-item-swiper-list .swiper-wrapper')
   if (mobile) {
     isMobile = true
+    predictNum = mobile.querySelectorAll('.col').length
     return mobile
   } else {
     const swiperSlide = pc.querySelectorAll('.swiper-slide')
-    pcSwiperSlideNum = swiperSlide.length
+    predictNum = swiperSlide.length
     pcSwiperSlideStyle = swiperSlide[0].attributes.style.value
     return pc
   }
@@ -49,7 +50,7 @@ function initPredict() {
           id: productId
         }
       }])
-      productList = productList.slice(0, pcSwiperSlideNum)
+      productList = productList.slice(0, predictNum)
       removeProductList()
       productList.forEach(item => {
         appendProduct(item)
