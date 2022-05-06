@@ -1,4 +1,23 @@
+let isMobile = false
+let pcSwiperSlideStyle = ''
+let pcSwiperSlideNum = 0
+const productListDoms = (function() {
+  const mobile = document.querySelector('.container-fluid>.product-recommend>.row')
+  const pc = document.querySelector('.container-fluid>.product-recommend>.product-item-swiper-list .swiper-wrapper')
+  if (mobile) {
+    isMobile = true
+    return mobile
+  } else {
+    const swiperSlide = pc.querySelectorAll('.swiper-slide')
+    pcSwiperSlideNum = swiperSlide.length
+    pcSwiperSlideStyle = swiperSlide[0].attributes.style.value
+    return pc
+  }
+})();
+
 (function() {
+  if (Shopline.uri.alias !== 'ProductsDetail') return
+
   initGa(function() {
     initPredict()
   })
@@ -23,18 +42,23 @@ function initGa(cb) {
 }
 
 function initPredict() {
-  console.log('initPredict')
-  getClientId(async function(clientId) {
-    let productList = await getPredictList('home-page-view', clientId)
-    productList = productList.slice(0, 4)
-    removeProductList()
-    productList.forEach(item => {
-      appendProduct(item)
+  getClientId(function(clientId) {
+    Shopline.event.on('DataReport::ViewContent', async function({ data: { content_spu_id: productId } }) {
+      let productList = await getPredictList('detail-page-view', clientId, [{
+        product: {
+          id: productId
+        }
+      }])
+      productList = productList.slice(0, pcSwiperSlideNum)
+      removeProductList()
+      productList.forEach(item => {
+        appendProduct(item)
+      })
     })
   })
 }
 
-function getPredictList(eventType, visitorId) {
+function getPredictList(eventType, visitorId, productDetails) {
   return new Promise(resolve => {
     fetch('https://us-central1-shopai001.cloudfunctions.net/predict', {
       method: 'POST',
@@ -44,6 +68,7 @@ function getPredictList(eventType, visitorId) {
       body: JSON.stringify({
         eventType,
         visitorId,
+        productDetails,
         shop: 'g4freegear'
       })
     })
@@ -55,89 +80,85 @@ function getPredictList(eventType, visitorId) {
 
 
 function appendProduct(productInfo) {
-  console.log(productInfo)
-  const productListDoms = document.querySelectorAll('#shopline-section-featured-collection .stage-featured-collection--scroll-container  ')
-  console.log(productListDoms)
-  productListDoms.forEach(item => {
-    const { price, compare_at_price } = productInfo.variants[0]
-    const savePrice = Math.floor((productInfo.variants[0].compare_at_price * 1 - productInfo.variants[0].price * 1) * 100) / 100
-    item.innerHTML += `
-      <div class="col">
-        <a
-          data-id="${productInfo.id}"
-          data-item-no="${productInfo.variants[0].sku}"
-          data-sku-id="${productInfo.variants[0].id}"
-          data-index=""
-          data-status="${productInfo.status === 'active'}"
-          data-name="${productInfo.title}"
-          data-price="${price * 100}"
-          class="product-item"
-          href="/products/${productInfo.handle}"
-          data-plugin-product-item-a=""
-        >
-          <div class="product-item-image-wrapper">
-            <div class="product-item-next-image" data-plugin-product-item-next-img-box="">
-              <div data-test="" class="product-process-image " style="opacity: 1;" data-plugin-product-item-img-ele="">
-                <img
-                  style="object-fit: contain; height: auto;"
-                  class="lozad lazyloaded"
-                  sizes="(max-width: 749px) 80vw,(max-width: 959px) 100vw"
-                  src="${productInfo.image.src}?w=999&amp;h=999&amp;t=webp"
-                />
-              </div>
-            </div>
-            <div class="product-item-image" data-plugin-product-item-img-box="">
-              <div data-test="" class="product-process-image" style="opacity: 1;" data-plugin-product-item-img-ele="">
-                <img
-                  style="object-fit: contain; height: auto;"
-                  class="lozad lazyloaded"
-                  sizes="(max-width: 749px) 80vw,(max-width: 959px) 100vw"
-                  src="${productInfo.image.src}?w=1500&amp;h=1500&amp;t=webp"
-                >
-              </div>
-            </div>
-            <span class="product-item-sale-tag body4">Sale</span>
-            <div class="product-item-btn-con d-none d-md-block">
-              <button
-                data-query=""
-                data-spu-seq="${productInfo.id}"
-                data-unique-key="${productInfo.handle}"
-                class="btn btn-primary btn-sm product-item-btn"
-                type="button"
-              >
-                Quick view
-              </button>
+  const { price, compare_at_price } = productInfo.variants[0]
+  const savePrice = Math.floor((productInfo.variants[0].compare_at_price * 1 - productInfo.variants[0].price * 1) * 100) / 100
+  productListDoms.innerHTML += `
+    ${
+      isMobile ? '<div class="col">' : `<div class="swiper-slide" style="${ pcSwiperSlideStyle }">`
+    }
+      <a
+        data-id="${productInfo.id}"
+        data-item-no="${productInfo.variants[0].sku}"
+        data-sku-id="${productInfo.variants[0].id}"
+        data-index=""
+        data-status="${productInfo.status === 'active'}"
+        data-name="${productInfo.title}"
+        data-price="${price * 100}"
+        class="${ isMobile ? 'product-item' : 'product-item __sl-custom-track-product-recommend-item'}"
+        href="/products/${productInfo.handle}"
+        data-plugin-product-item-a=""
+      >
+        <div class="product-item-image-wrapper">
+          <div class="product-item-next-image" data-plugin-product-item-next-img-box="">
+            <div data-test="" class="product-process-image " style="opacity: 1;" data-plugin-product-item-img-ele="">
+              <img
+                style="object-fit: contain; height: auto;"
+                class="lozad lazyloaded"
+                sizes="(max-width: 749px) 80vw,(max-width: 959px) 100vw"
+                src="${productInfo.image.src}?w=999&amp;h=999&amp;t=webp"
+              />
             </div>
           </div>
-          <div class="product-item-info">
-            <div class="product-item-title product-grid-font">
-              ${productInfo.title}
+          <div class="product-item-image" data-plugin-product-item-img-box="">
+            <div data-test="" class="product-process-image" style="opacity: 1;" data-plugin-product-item-img-ele="">
+              <img
+                style="object-fit: contain; height: auto;"
+                class="lozad lazyloaded"
+                sizes="(max-width: 749px) 80vw,(max-width: 959px) 100vw"
+                src="${productInfo.image.src}?w=1500&amp;h=1500&amp;t=webp"
+              >
             </div>
-            <div data-ssr-product-item-price-top=""></div>
-            <div class="product-item-price body-font display-center">
-              <span data-product-item-price="${compare_at_price * 100}" class="product-item-origin-price notranslate">$${compare_at_price}</span>
-              <span class="product-item-sale-price">
-                <span data-product-item-price="${price * 100}" data-from="1">From $${price}</span>
-              </span>
+          </div>
+          ${ compare_at_price * 1 ? '<span class="product-item-sale-tag body4">Sale</span>' : '' }
+          <div class="product-item-btn-con d-none d-md-block">
+            <button
+              data-query=""
+              data-spu-seq="${productInfo.id}"
+              data-unique-key="${productInfo.handle}"
+              class="btn btn-primary btn-sm product-item-btn"
+              type="button"
+            >
+              Quick view
+            </button>
+          </div>
+        </div>
+        <div class="product-item-info">
+          <div class="product-item-title product-grid-font">
+            ${productInfo.title}
+          </div>
+          <div data-ssr-product-item-price-top=""></div>
+          <div class="product-item-price body-font display-center">
+            ${ compare_at_price * 1 ? `<span data-product-item-price="${compare_at_price * 100}" class="product-item-origin-price notranslate">$${compare_at_price}</span>` : ''  }
+            <span class="product-item-sale-price">
+              <span data-product-item-price="${price * 100}" data-from="1">${ compare_at_price * 1 ? 'From' : '' } $${price}</span>
+            </span>
+            ${ compare_at_price * 1 ? `
               <span class="product-item-save-price">
                 Save
                 <span class="notranslate" data-product-item-price="${savePrice * 100}">$${savePrice}</span>
               </span>
-            </div>
-            <div data-ssr-product-item-price-bottom=""></div>
+            ` : '' }
           </div>
-          <div data-ssr-product-item-bottom=""></div>
-        </a>
-      </div>
-    `
-  })
+          <div data-ssr-product-item-price-bottom=""></div>
+        </div>
+        <div data-ssr-product-item-bottom=""></div>
+      </a>
+    </div>
+  `
 }
 
 function removeProductList() {
-  const productListDoms = document.querySelectorAll('#shopline-section-featured-collection .stage-featured-collection--scroll-container  ')
-  productListDoms.forEach(item => {
-    item.innerHTML = ''
-  })
+  productListDoms.innerHTML = ''
 }
 
 function getClientId(cb) {
