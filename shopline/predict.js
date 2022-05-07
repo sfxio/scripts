@@ -51,7 +51,7 @@ function initPredict() {
         }
       }])
 
-      if (!productList.length) return
+      if (productList.length < predictNum) return
       
       productList = productList.slice(0, predictNum)
       removeProductList()
