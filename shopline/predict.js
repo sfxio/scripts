@@ -50,6 +50,9 @@ function initPredict() {
           id: productId
         }
       }])
+
+      if (!productList.length) return
+      
       productList = productList.slice(0, predictNum)
       removeProductList()
       productList.forEach(item => {
