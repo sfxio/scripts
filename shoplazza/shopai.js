@@ -1,16 +1,7 @@
-const Shopline = {
-  uri: {
-    alias: ''
-  },
-  event: {
-    on() {}
-  }
-};
-
 (function() {
   initGa(function() {
     triggerViewEvent()
-    // initEventListener()
+    initEventListener()
   })
 })()
 
@@ -66,7 +57,6 @@ function detailPageViewEvent() {
 function getProductId() {
   const cookie_pdv = getCookie('_pdv')
   const pdv =  JSON.parse(decodeURIComponent(cookie_pdv))
-  // console.log(cookie_pdv, pdv)
   return pdv[0]['product_id']
 }
 
@@ -80,12 +70,11 @@ function getCookie(name) {
       return true
     }
   })
-  // console.log(result)
   return result
 }
 
 function initEventListener() {
-  Shopline.event.on('DataReport::AddToCart', function({ data: { quantity, content_spu_id: productId } }) {
+  $(document.body).on('dj.addToCart', function (e, { product_id: productId, quantity }) {
     record_user_event("add-to-cart", {
       cartId: "cart-id",
       productDetails: [
@@ -99,10 +88,9 @@ function initEventListener() {
     })
   })
 
-
-  Shopline.event.on('DataReport::CompleteOrder', function({ data: {currency, value, contents}}) {
+  $(document.body).on('dj.purchase', function (e, { line_items, prices: { total_price }}) {
     record_user_event("purchase-complete", {
-      productDetails: contents.map(({ content_spu_id: productId, quantity }) => {
+      productDetails: line_items.map(({ id: productId, quantity }) => {
         return {
           product: {
             id: productId
@@ -111,8 +99,8 @@ function initEventListener() {
         }
       }),
       purchaseTransaction: {
-        revenue: value,
-        currencyCode: currency
+        revenue: total_price,
+        currencyCode: SHOPLAZZA.currency_code
       }
     })
   })
