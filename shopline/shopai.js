@@ -1,18 +1,17 @@
 const OPTIMIZE_ID = 'OPT-57XC4KR'
 const GTAG_ID = 'G-KK179450G2'
+let experimentId
 
 ;(function() {
   initGa(function() {
-    triggerViewEvent(Shopline.uri.alias)
-    initEventListener()
+    initOptimize((v, experimentId) => {
+      triggerViewEvent(Shopline.uri.alias)
+      initEventListener()
 
-    if (Shopline.uri.alias === 'ProductsDetail') {
-      initOptimize((v, experimentId) => {
-        if (v == 1) {
-          initPredict(experimentId)
-        }
-      })
-    }
+      if (Shopline.uri.alias === 'ProductsDetail' && v == 1) {
+        initPredict(experimentId)
+      }
+    })
   })
 })()
 
@@ -50,8 +49,9 @@ function initOptimize(cb) {
   document.querySelector('head').append(optimizeScript)
   optimizeScript.onload = function() {
 
-    gtag('event', 'optimize.callback', {callback: (v, experimentId) => {
-      if (cb instanceof Function) cb(v, experimentId)
+    gtag('event', 'optimize.callback', {callback: (v, _experimentId) => {
+      experimentId = _experimentId
+      if (cb instanceof Function) cb(v, _experimentId)
     }})
   }
 }
@@ -159,6 +159,7 @@ function user_event(eventType, visitorId, params) {
     body: JSON.stringify({
       eventType,
       visitorId,
+      experimentId,
       ...params
     })
   })
