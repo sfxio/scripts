@@ -16,10 +16,6 @@ const GTAG_ID = 'G-KK179450G2'
   })
 })()
 
-function gtag() {
-  dataLayer.push(arguments)
-}
-
 async function getClientId(cb) {
   let clientId = localStorage.getItem('clientId') || null;
   if (!clientId) {
@@ -53,17 +49,8 @@ function initOptimize(cb) {
   optimizeScript.src = 'https://www.googleoptimize.com/optimize.js?id=' + OPTIMIZE_ID
   document.querySelector('head').append(optimizeScript)
   optimizeScript.onload = function() {
-    // const gtagScript = document.createElement('script')
-    // gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=' + GTAG_ID
-    // gtagScript.async = true
-    // document.querySelector('head').append(gtagScript)
-    // window.dataLayer = window.dataLayer || []
-
-    // gtag('js', new Date());
-    // gtag('config', GTAG_ID);
 
     gtag('event', 'optimize.callback', {callback: (v, experimentId) => {
-      console.log(v, experimentId)
       if (cb instanceof Function) cb(v, experimentId)
     }})
   }
