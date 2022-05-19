@@ -1,10 +1,15 @@
-(function() {
+const OPTIMIZE_ID = 'OPT-57XC4KR'
+const GTAG_ID = 'G-KK179450G2'
+
+;(function() {
   initGa(function() {
     triggerViewEvent(Shopline.uri.alias)
     initEventListener()
 
     if (Shopline.uri.alias === 'ProductsDetail') {
-      initPredict()
+      initOptimize((v, experimentId) => {
+        initPredict(v, experimentId)
+      })
     }
   })
 })()
@@ -21,7 +26,7 @@ async function getClientId(cb) {
     if (!_clientId) {
       _clientId = await (function() {
         return new Promise(resolve => {
-          gtag('get', 'G-HP0GTQL69G', 'client_id', (_cid) => {
+          gtag('get', GTAG_ID, 'client_id', (_cid) => {
             resolve(_cid)
           })
         })
@@ -35,8 +40,34 @@ async function getClientId(cb) {
   }
 }
 
+function initOptimize(cb) {
+  (function(a,s,y,n,c,h,i,d,e){s.className+=' '+y;h.start=1*new Date;
+  h.end=i=function(){s.className=s.className.replace(RegExp(' ?'+y),'')};
+  (a[n]=a[n]||[]).hide=h;setTimeout(function(){i();h.end=null},c);h.timeout=c;
+  })(window,document.documentElement,'async-hide','dataLayer',4000,
+  {[OPTIMIZE_ID]:true});
+
+  const optimizeScript = document.createElement('script')
+  optimizeScript.src = 'https://www.googleoptimize.com/optimize.js?id=' + OPTIMIZE_ID
+  document.querySelector('head').append(optimizeScript)
+  optimizeScript.onload = function() {
+    // const gtagScript = document.createElement('script')
+    // gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=' + GTAG_ID
+    // gtagScript.async = true
+    // document.querySelector('head').append(gtagScript)
+    // window.dataLayer = window.dataLayer || []
+
+    // gtag('js', new Date());
+    // gtag('config', GTAG_ID);
+
+    gtag('event', 'optimize.callback', {callback: (v, experimentId) => {
+      console.log(v, experimentId)
+      if (cb instanceof Function) cb(v, experimentId)
+    }})
+  }
+}
+
 function initGa(cb) {
-  var GTAG_ID = 'G-HP0GTQL69G'; 
   (function (i, s, o, g, r, a, m) {
     i['GoogleAnalyticsObject'] = r;
     if (i[r]) return cb()
@@ -145,27 +176,34 @@ function user_event(eventType, visitorId, params) {
 }
 
 // predict
-function initPredict() {
-  getClientId(function(clientId) {
-    Shopline.event.on('DataReport::ViewContent', async function({ data: { content_spu_id: productId } }) {
-      let productList = await getPredictList('detail-page-view', clientId, [{
-        product: {
-          id: productId
-        }
-      }])
-
-      if (productList.length < predictNum) return
-      
-      productList = productList.slice(0, predictNum)
-      removeProductList()
-      productList.forEach(item => {
-        appendProduct(item)
+function initPredict(v, experimentId) {
+  if (v === 1) {
+    getClientId(function(clientId) {
+      Shopline.event.on('DataReport::ViewContent', async function({ data: { content_spu_id: productId } }) {
+        let productList = await getPredictList(
+          'detail-page-view',
+          clientId,
+          [{
+            product: {
+              id: productId
+            }
+          }],
+          experimentId
+        )
+  
+        if (productList.length < predictNum) return
+        
+        productList = productList.slice(0, predictNum)
+        removeProductList()
+        productList.forEach(item => {
+          appendProduct(item)
+        })
       })
     })
-  })
+  }
 }
 
-function getPredictList(eventType, visitorId, productDetails) {
+function getPredictList(eventType, visitorId, productDetails, experimentId) {
   return new Promise(resolve => {
     fetch('https://us-central1-shopai001.cloudfunctions.net/predict', {
       method: 'POST',
@@ -176,7 +214,8 @@ function getPredictList(eventType, visitorId, productDetails) {
         eventType,
         visitorId,
         productDetails,
-        shop: 'g4freegear'
+        shop: 'g4freegear',
+        experimentId
       })
     })
     .then(async response => {
