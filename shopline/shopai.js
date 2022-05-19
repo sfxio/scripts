@@ -8,7 +8,9 @@ const GTAG_ID = 'G-KK179450G2'
 
     if (Shopline.uri.alias === 'ProductsDetail') {
       initOptimize((v, experimentId) => {
-        initPredict(v, experimentId)
+        if (v == 1) {
+          initPredict(experimentId)
+        }
       })
     }
   })
@@ -176,31 +178,48 @@ function user_event(eventType, visitorId, params) {
 }
 
 // predict
-function initPredict(v, experimentId) {
-  if (v === 1) {
-    getClientId(function(clientId) {
-      Shopline.event.on('DataReport::ViewContent', async function({ data: { content_spu_id: productId } }) {
-        let productList = await getPredictList(
-          'detail-page-view',
-          clientId,
-          [{
-            product: {
-              id: productId
-            }
-          }],
-          experimentId
-        )
-  
-        if (productList.length < predictNum) return
-        
-        productList = productList.slice(0, predictNum)
-        removeProductList()
-        productList.forEach(item => {
-          appendProduct(item)
-        })
+let isMobile = false
+let pcSwiperSlideStyle = ''
+let predictNum = 0
+
+const productListDoms = (function() {
+  const mobile = document.querySelector('.container-fluid>.product-recommend>.row')
+  const pc = document.querySelector('.container-fluid>.product-recommend>.product-item-swiper-list .swiper-wrapper')
+  if (mobile) {
+    isMobile = true
+    predictNum = mobile.querySelectorAll('.col').length
+    return mobile
+  } else {
+    const swiperSlide = pc.querySelectorAll('.swiper-slide')
+    predictNum = swiperSlide.length
+    pcSwiperSlideStyle = swiperSlide[0].attributes.style.value
+    return pc
+  }
+})();
+
+function initPredict(experimentId) {
+  getClientId(function(clientId) {
+    Shopline.event.on('DataReport::ViewContent', async function({ data: { content_spu_id: productId } }) {
+      let productList = await getPredictList(
+        'detail-page-view',
+        clientId,
+        [{
+          product: {
+            id: productId
+          }
+        }],
+        experimentId
+      )
+
+      if (productList.length < predictNum) return
+      
+      productList = productList.slice(0, predictNum)
+      removeProductList()
+      productList.forEach(item => {
+        appendProduct(item)
       })
     })
-  }
+  })
 }
 
 function getPredictList(eventType, visitorId, productDetails, experimentId) {
