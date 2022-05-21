@@ -145,22 +145,24 @@ let isMobile = false
 let pcSwiperSlideStyle = ''
 let predictNum = 0
 
-const productListDoms = (function() {
-  const mobile = document.querySelector('.container-fluid>.product-recommend>.row')
-  const pc = document.querySelector('.container-fluid>.product-recommend>.product-item-swiper-list .swiper-wrapper')
-  if (mobile) {
-    isMobile = true
-    predictNum = mobile.querySelectorAll('.col').length
-    return mobile
-  } else {
-    const swiperSlide = pc.querySelectorAll('.swiper-slide')
-    predictNum = swiperSlide.length
-    pcSwiperSlideStyle = swiperSlide[0].attributes.style.value
-    return pc
-  }
-})();
+let productListDoms;
 
 function initPredict(oeid) {
+  productListDoms = (function() {
+    const mobile = document.querySelector('.container-fluid>.product-recommend>.row')
+    const pc = document.querySelector('.container-fluid>.product-recommend>.product-item-swiper-list .swiper-wrapper')
+    if (mobile) {
+      isMobile = true
+      predictNum = mobile.querySelectorAll('.col').length
+      return mobile
+    } else {
+      const swiperSlide = pc.querySelectorAll('.swiper-slide')
+      predictNum = swiperSlide.length
+      pcSwiperSlideStyle = swiperSlide[0].attributes.style.value
+      return pc
+    }
+  })();
+
   getClientId(function(clientId) {
     Shopline.event.on('DataReport::ViewContent', async function({ data: { content_spu_id: productId } }) {
       let productList = await getPredictList(
