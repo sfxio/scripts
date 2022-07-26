@@ -1,0 +1,12 @@
+{
+  "name": "shopflex_public_scripts",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://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@github.com/sfxio/scripts.git",
+  "author": "Your Name <you@example.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/jquery": "^3.5.14",
+    "typescript": "^4.7.4"
+  }
+}
