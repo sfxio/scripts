@@ -1,3 +1,4 @@
+import css from 'rollup-plugin-import-css';
 import resolve from 'rollup-plugin-node-resolve';
 import commonjs from 'rollup-plugin-commonjs';
 import sourceMaps from 'rollup-plugin-sourcemaps';
@@ -31,6 +32,7 @@ export default {
       useTsconfigDeclarationDir: true,
     }),
     // Allow bundling cjs modules (unlike webpack, rollup doesn't understand cjs)
+    css(),
     commonjs(),
     babel({ babelHelpers: 'bundled' }),
     // Allow node_modules resolution, so you can use 'external' to control
