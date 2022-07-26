@@ -1,6 +1,11 @@
 // @ts-nocheck
-
 ;(function () {
+  const _fetch = window.fetch
+  const fetch = (endpoint: RequestInfo | URL, option?: RequestInit = {}) => {
+    option.mode = option.mode || 'cors'
+    return _fetch(endpoint, option)
+  }
+
   const eventBus = window.Shopline.event
   const logger = {
     log: (...args: any[]) => console.log(`[SHOPFLEX LOG]: `, ...args),

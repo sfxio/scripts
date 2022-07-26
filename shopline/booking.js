@@ -1,5 +1,3 @@
-"use strict";
-// @ts-nocheck
 var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
     if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
         if (ar || !(i in from)) {
@@ -9,8 +7,15 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
     }
     return to.concat(ar || Array.prototype.slice.call(from));
 };
+// @ts-nocheck
 ;
 (function () {
+    var _fetch = window.fetch;
+    var fetch = function (endpoint, option) {
+        if (option === void 0) { option = {}; }
+        option.mode = option.mode || 'cors';
+        return _fetch(endpoint, option);
+    };
     var eventBus = window.Shopline.event;
     var logger = {
         log: function () {
@@ -33,7 +38,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
                 args[_i] = arguments[_i];
             }
             return console.error.apply(console, __spreadArray(["[SHOPFLEX ERROR]: "], args, false));
-        },
+        }
     };
     var canInject = function (product) {
         return (product &&
@@ -138,7 +143,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
                 daysHighlight: [
                     {
                         days: keys,
-                        backgroundColor: '#f08080',
+                        backgroundColor: '#f08080'
                     },
                 ],
                 onSelect: function () {
@@ -187,7 +192,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
                             gStartTime.push(time);
                         });
                     });
-                },
+                }
             });
         });
     }
@@ -234,7 +239,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
             method: 'post',
             headers: {
                 Accept: 'application/json',
-                'Content-Type': 'application/json',
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({
                 items: [
@@ -245,37 +250,37 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
                             {
                                 name: 'booking',
                                 value: gStartTime.join(' '),
-                                type: 'text',
+                                type: 'text'
                             },
                             {
                                 name: 'Date',
                                 value: gCurrentSelectedDate,
                                 type: 'text',
                                 show: true,
-                                export: true,
-                                extInfo: '',
+                                "export": true,
+                                extInfo: ''
                             },
                             {
                                 name: 'Time Range',
                                 value: timeRange,
                                 type: 'text',
                                 show: true,
-                                export: true,
-                                extInfo: '',
+                                "export": true,
+                                extInfo: ''
                             },
                             {
                                 name: 'planIds',
                                 value: planIds,
                                 type: 'text',
                                 show: false,
-                                export: true,
-                                extInfo: '',
+                                "export": true,
+                                extInfo: ''
                             },
-                        ],
+                        ]
                     },
-                ],
-            }),
-        }).catch(function (err) { return logger.error('add to cart error: ', err); });
+                ]
+            })
+        })["catch"](function (err) { return logger.error('add to cart error: ', err); });
         // window.alert('Add to Cart Success!')
         eventBus.emit('Cart::NavigateCart');
     }
@@ -305,8 +310,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
         })
             .then(function () {
             return initEvent();
-        })
-            .catch(function (err) {
+        })["catch"](function (err) {
             logger.warn(err);
         });
     }

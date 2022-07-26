@@ -14,8 +14,6 @@
     "lib": [
       "dom",
       "ES2016",
-      "scripthost",
-      "ES2015.Generator",
       "es2015.promise"
     ], /* Specify a set of bundled library declaration files that describe the target runtime environment. */
     // "jsx": "preserve",                                /* Specify what JSX code is generated. */
@@ -91,6 +89,7 @@
     // "noUncheckedIndexedAccess": true,                 /* Include 'undefined' in index signature results */
     // "noImplicitOverride": true,                       /* Ensure overriding members in derived classes are marked with an override modifier. */
     // "noPropertyAccessFromIndexSignature": true,       /* Enforces using indexed accessors for keys declared using an indexed type */
+    "removeComments": true,
     "pretty": false,
     // "allowUnusedLabels": true,                        /* Disable error reporting for unused labels. */
     // "allowUnreachableCode": true,                     /* Disable error reporting for unreachable code. */
