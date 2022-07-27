@@ -65,3 +65,8 @@ export const createCalendar = async (insert: Function, options: any = {}) => {
 
   return calendar;
 };
+
+export function findVariant(product: any, skuSeq: string) {
+  if (!product || !product.variants) return null;
+  return product.variants.find((item: any) => item.id === skuSeq);
+}

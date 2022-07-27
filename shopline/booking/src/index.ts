@@ -26,7 +26,7 @@ import {
   SL_BTNS,
   SL_BUY_NOW,
 } from './constant';
-import { createCalendar, loadScript } from './utils';
+import { createCalendar, findVariant, loadScript } from './utils';
 import { initJqueryToast, jqueryToastCss } from './jquery-toast';
 
 // import './hello.week.theme.min.css';
@@ -34,6 +34,7 @@ export const ctx: SfCtx = {
   gCurrentCalendar: null,
   gCurrentSku: null,
   gProduct: null,
+  gCurrentSchedule: null,
 };
 
 const logger = {
@@ -86,6 +87,7 @@ interface SkuData {
   type: 'init' | 'change';
   quantity: number;
   spuSeq: string;
+  skuSeq: string;
   stock: number;
   available: boolean;
   id: string;
@@ -126,6 +128,7 @@ interface SfCtx {
   gCurrentSku: SkuData | null;
   gProduct: any | null;
   gCurrentCalendar: null | HelloWeek;
+  gCurrentSchedule: null | Record<string, any[]>;
 }
 
 // @ts-ignore
@@ -156,6 +159,10 @@ const _translation = {
   add_to_cart: {
     en: 'Add to carts',
     zh: '添加到购物车',
+  },
+  please_select_a_sku_first: {
+    en: 'Please select a sku first',
+    zh: '请先选择一个商品的 sku',
   },
 };
 const translation = Object.keys(_translation).reduce((prev, key) => {
@@ -243,6 +250,8 @@ function resetEl() {
   slBuyNowBtn.classList.add(SF_SELECT_BOOKING_DATE_CLASSES);
   const sfAddToCartBtn = slAddToCartBtn.cloneNode(true);
   const sfSelectDateBtn = slBuyNowBtn.cloneNode(true);
+  sfAddToCartBtn.textContent = translation.add_to_cart;
+  sfSelectDateBtn.textContent = translation.select_booking_date;
 
   slAddToCartBtn.replaceWith(sfSelectDateBtn);
   slBuyNowBtn.replaceWith(sfAddToCartBtn);
@@ -269,7 +278,6 @@ function initEvent() {
 
   sfSelectDateBtn.addEventListener('click', async () => {
     logger.log('click select booking btn.. ');
-    console.log('gCurrentSku: ', ctx.gCurrentSku);
     if (ctx.gCurrentCalendar) {
       ctx.gCurrentCalendar.destroy();
       sfSelectDateBtn.innerHTML = translation.select_booking_date;
@@ -277,13 +285,51 @@ function initEvent() {
       return;
     }
 
+    const sku = ctx.gCurrentSku?.skuSeq;
+    if (!sku) {
+      // eslint-disable-next-line no-alert
+      alert(translation.please_select_a_sku_first);
+      return;
+    }
+
+    // const variant = findVariant(ctx.gProduct, sku)!;
+    // logger.log('variant: ', variant);
+
+    const scheduleData = await fetcher(
+      makeUrl('https://api.shopflex.io/reserve/sku/datePlanList', {
+        platformProductId: ctx.gProduct.id,
+        platformVariantId: sku,
+      })
+    ).then((res: any) => {
+      if (res.code === 200) return res.data;
+      return Promise.reject(
+        new Error(
+          `Failed to fetch schedule data, platformProductId = ${ctx.gProduct.id}, platformVariantId = ${sku}`
+        )
+      );
+    });
+
+    logger.log('scheduleData: ', scheduleData);
+
+    ctx.gCurrentSchedule = scheduleData;
+    const days = Object.keys(ctx.gCurrentSchedule || {});
+
     ctx.gCurrentCalendar = await createCalendar(
       (calendarEl: any) => {
         sfBtns.insertBefore(calendarEl, sfAddToCartBtn);
       },
       {
+        daysHighlight: [
+          {
+            days,
+            // backgroundColor: '#f08080',
+          },
+        ],
+
         onSelect() {
           const calendar = ctx.gCurrentCalendar!;
+          
+
           console.log(calendar.getDaySelected());
         },
       }
@@ -300,6 +346,7 @@ function initEvent() {
 async function main() {
   try {
     await initBooking();
+    await injectDep();
     await injectDep();
     await resetEl();
     await initEvent();
