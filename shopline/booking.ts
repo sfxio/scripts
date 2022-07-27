@@ -692,8 +692,15 @@
         (t.render = F),
         Object.defineProperty(t, '__esModule', { value: !0 })
     })({})
-    
-    
+
+    if (!document.head.querySelector('#shoplfex-calendar-style')) {
+      const el = document.createElement('link')
+      el.id = 'shoplfex-calendar-style'
+      el.href = 'https://sfxio.github.io/scripts/shopline/hello-week-theme.css'
+      el.rel = 'stylesheet'
+      el.crossOrigin = 'anonymous'
+      document.head.append(el)
+    }
   }
 
   inject()

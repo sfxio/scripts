@@ -602,39 +602,14 @@ var __rest = (this && this.__rest) || function (s, e) {
                 (t.render = F),
                 Object.defineProperty(t, '__esModule', { value: !0 });
         })({});
-        if (document.head.querySelector(`#shopflex-hello-week-style`))
-            return;
-        const style = document.createElement('style');
-        style.id = 'shopflex-hello-week-style';
-        style.innerHTML = `.hello-week .week {
-color: #42a298;
-font-size: 1.2em;
-}
-.hello-week .day.is-weekend {
-  color: #ff3860;
-}
-.hello-week .day.is-highlight {
-  background-color: #8fbc8f;
-  color: #fff;
-}
-.hello-week .day.is-today {
-  background-color: #ff3860;
-  color: #fff;
-}
-.hello-week .day.is-selected {
-  background-color: #7fcbc3 !important;
-  color: #fff !important;
-}
-.hello-week .day.is-begin-range,
-.hello-week .day.is-end-range {
-  background-color: #42a298 !important;
-  color: #fff !important;
-}
-.hello-week .day.is-disabled {
-  cursor: not-allowed;
-  opacity: 0.33;
-}`;
-        document.head.append(style);
+        if (!document.head.querySelector('#shoplfex-calendar-style')) {
+            const el = document.createElement('link');
+            el.id = 'shoplfex-calendar-style';
+            el.href = 'https://sfxio.github.io/scripts/shopline/hello-week-theme.css';
+            el.rel = 'stylesheet';
+            el.crossOrigin = 'anonymous';
+            document.head.append(el);
+        }
     }
     inject();
     const _fetch = window.fetch;
