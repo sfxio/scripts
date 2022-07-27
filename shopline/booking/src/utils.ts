@@ -150,7 +150,7 @@ export async function warning(msg: string, timeout = 4000) {
     existedEl.remove();
   }
 
-  const el = document.createElement(`div`);
+  const el = document.createElement('div');
   el.id = id;
   el.innerHTML = msg;
 
@@ -160,9 +160,9 @@ export async function warning(msg: string, timeout = 4000) {
   el.style.top = '20px';
   el.style.left = '50%';
   el.style.border = '1px solid black';
-  el.style.color = `#663c00`;
-  el.style.background = `#fff4e5`;
-  el.style.borderColor = `#f5dab1`;
+  el.style.color = '#663c00';
+  el.style.background = '#fff4e5';
+  el.style.borderColor = '#f5dab1';
   el.style.transform = 'translateX(-50%);';
   el.style.transition = 'all 200ms';
   el.style.lineHeight = '1.5';
@@ -171,11 +171,11 @@ export async function warning(msg: string, timeout = 4000) {
   document.body.appendChild(el);
 
   setTimeout(async () => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.style.opacity = '0';
+    const _el = document.getElementById(id);
+    if (!_el) return;
+    _el.style.opacity = '0';
 
     await delay(400);
-    if (el) el.remove();
+    if (_el) _el.remove();
   }, timeout);
 }
