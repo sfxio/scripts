@@ -17,6 +17,64 @@ export default function blendColors(colorA: string, colorB: string, amount: numb
 
 export const createHelloWeekColor = (primary: string, secondary: string, selected: string) => {
   const css = `
+.__sf-calendar > * {
+  box-sizing: border-box;
+}
+
+.__sf-calendar {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0 auto;
+  user-select: none;
+  font-size: 1em;
+}
+.__sf-calendar .navigation {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0;
+}
+.__sf-calendar .prev,
+.__sf-calendar .next {
+  padding: 1em;
+  cursor: pointer;
+}
+.__sf-calendar .period {
+  width: 100%;
+  font-size: 1.2em;
+  font-weight: 400;
+  text-align: center;
+}
+.__sf-calendar .week {
+  display: flex;
+  font-size: 0.9em;
+}
+.__sf-calendar .week.rtl {
+  flex-direction: row-reverse;
+}
+.__sf-calendar .month {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 0.4em 0;
+  cursor: pointer;
+}
+.__sf-calendar .month.rtl {
+  flex-direction: row-reverse;
+}
+.__sf-calendar .day {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(100% / 7);
+  padding: 1em;
+  cursor: pointer;
+}
+.__sf-calendar .day.is-disabled {
+  cursor: not-allowed;
+  opacity: 0.3;
+}
+
 .__sf-calendar .week {
   color: ${primary}!important;
   font-size: 1.2em;
@@ -54,4 +112,3 @@ export const createHelloWeekColor = (primary: string, secondary: string, selecte
 
   return css;
 };
-

@@ -13,7 +13,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 
 import './hello-week-local';
-import type HelloWeek from 'hello-week/src';
 import blendColors, { createHelloWeekColor } from './color';
 import useLoading from './use-loading';
 import {
@@ -29,6 +28,10 @@ import {
 } from './constant';
 import { createCalendar, findVariant, loadScript, Schedule } from './utils';
 import { initJqueryToast, jqueryToastCss } from './jquery-toast';
+import { translation } from './translation';
+import dayjs from 'dayjs';
+import { Colors, SfCtx, SkuData } from './type';
+// import './dayjs';
 
 // import './hello.week.theme.min.css';
 export const ctx: SfCtx = {
@@ -88,60 +91,11 @@ const fetcher = (url: string, _options: RequestInit = {}) => {
 //   price: string;
 // }
 
-interface SkuData {
-  type: 'init' | 'change';
-  quantity: number;
-  spuSeq: string;
-  skuSeq: string;
-  stock: number;
-  available: boolean;
-  id: string;
-}
 
-interface Colors {
-  body?: string;
-  btn?: string;
-  btnBg?: string;
-  input?: string;
-  inputBg?: string;
-  inputBorder?: string;
-  link?: string;
-  maskBg?: string;
-  moduleBg?: string;
-  orderCanceledBg?: string;
-  orderConfirmedBg?: string;
-  orderFinishedBg?: string;
-  orderProcessingBg?: string;
-  pageBg?: string;
-  primary?: string;
-  productTitle?: string;
-  sale?: string;
-  saleDescription?: string;
-  star?: string;
-  statusError?: string;
-  tag?: string;
-  tagBg?: string;
-  tagDisabledBg?: string;
-  title?: string;
-  vip?: string;
-  vipBg?: string;
-  secondary?: string;
-  activeColor?: string;
-}
-
-interface SfCtx {
-  gCurrentSku: SkuData | null;
-  gProduct: any | null;
-  gCurrentCalendar: null | HelloWeek;
-  gCurrentSchedules: null | Record<string, any[]>;
-  gCurrentSchedule: Schedule | null;
-  gSelectedDate: string | null;
-}
 
 // @ts-ignore
 const gShopline = window.Shopline as any;
 const gEventBus = gShopline.event;
-const gLocale: 'en' | 'zh' | 'zh-cn' = (gShopline.locale || 'en').toLowerCase();
 const gColors: Colors = gShopline.theme?.settings?.colors || {};
 const {
   primary = '#42a298',
@@ -153,32 +107,6 @@ const activeColor: string =
 logger.log('primary color: ', primary);
 logger.log('secondary color: ', secondary);
 logger.log('activeColor color: ', activeColor);
-
-const _translation = {
-  select_booking_date: {
-    en: 'Select booking date',
-    zh: '选择预定日期',
-  },
-  hidden: {
-    en: 'Hidden',
-    zh: '隐藏',
-  },
-  add_to_cart: {
-    en: 'Add to carts',
-    zh: '添加到购物车',
-  },
-  please_select_a_sku_first: {
-    en: 'Please select a sku first',
-    zh: '请先选择一个商品的 sku',
-  },
-};
-const translation = Object.keys(_translation).reduce((prev, key) => {
-  const locale = gLocale === 'zh-cn' ? 'zh' : gLocale;
-  // @ts-ignore
-  prev[key] = _translation[key][locale];
-
-  return prev;
-}, Object.create(null) as Record<string, string>);
 
 // global init
 const gShopHandle = gShopline.handle;
@@ -253,8 +181,14 @@ function resetEl() {
   const slAddToCartBtn = slBtns.querySelector<HTMLButtonElement>(`.${SL_ADD_TO_CARTS}`)!;
   const slBuyNowBtn = slBtns.querySelector<HTMLButtonElement>(`.${SL_BUY_NOW}`)!;
 
+  slAddToCartBtn.classList.remove(SL_ADD_TO_CARTS);
+  slAddToCartBtn.classList.remove(SF_SELECT_BOOKING_DATE_CLASSES);
   slAddToCartBtn.classList.add(SF_ADD_TO_CART_CLASSES);
+
+  slBuyNowBtn.classList.remove(SL_BUY_NOW);
+  slBuyNowBtn.classList.remove(SF_ADD_TO_CART_CLASSES);
   slBuyNowBtn.classList.add(SF_SELECT_BOOKING_DATE_CLASSES);
+
   const sfAddToCartBtn = slAddToCartBtn.cloneNode(true);
   const sfSelectDateBtn = slBuyNowBtn.cloneNode(true);
   sfAddToCartBtn.textContent = translation.add_to_cart;
@@ -280,13 +214,27 @@ function initEvent() {
     `.${SF_SELECT_BOOKING_DATE_CLASSES}`
   )!;
 
+  let content: any;
   const { isLoading: isSelectedLoading, run: runSelect } = useLoading();
-  const { isLoading: isAddingToCartLoading, run: runAddToCart } = useLoading();
+  const { isLoading: isAddingToCartLoading, run: runAddToCart } = useLoading({
+    before: () => {
+      content = sfAddToCartBtn.innerHTML;
+      sfAddToCartBtn.innerHTML = `Loading...`;
+      sfAddToCartBtn.disabled = true;
+    },
+    after: () => {
+      sfAddToCartBtn.innerHTML = content;
+      sfAddToCartBtn.disabled = false;
+      content = null;
+    },
+  });
 
   sfSelectDateBtn.addEventListener('click', async () => {
     logger.log('click select booking btn.. ');
     if (ctx.gCurrentCalendar) {
       ctx.gCurrentCalendar.destroy();
+      ctx.gCurrentSchedule?.destroy();
+      ctx.gSelectedDate = null;
       sfSelectDateBtn.innerHTML = translation.select_booking_date;
       ctx.gCurrentCalendar = null;
       return;
@@ -337,12 +285,13 @@ function initEvent() {
           const calendar = ctx.gCurrentCalendar!;
           const selectedDate = (calendar.getDaySelected() as any)[0];
           const schedule = ctx.gCurrentSchedules![selectedDate];
-          if (!ctx.gSelectedDate === selectedDate) {
+          if (ctx.gSelectedDate !== selectedDate) {
             ctx.gSelectedDate = selectedDate;
             ctx.gCurrentSchedule?.destroy();
             ctx.gCurrentSchedule = new Schedule(
               (el: HTMLElement) => {
                 // sfBtns.insertBefore(el, runAddToCart);
+                sfBtns.insertBefore(el, sfAddToCartBtn);
               },
               schedule,
               {
@@ -357,8 +306,75 @@ function initEvent() {
     sfSelectDateBtn.innerHTML = translation.hidden;
   });
 
-  sfAddToCartBtn.addEventListener('click', () => {
-    logger.log('click add to cart btn');
+  console.log('sfAddToCartBtn: ', sfAddToCartBtn);
+  sfAddToCartBtn.addEventListener('click', async () => {
+    logger.log('click add to cart btn, current context: ', ctx);
+    const currentSchedule = ctx.gCurrentSchedule?.active;
+    // 没有选择有效的时间段
+    if (!currentSchedule) {
+      alert('Should select a valid booking date.');
+      return;
+    }
+
+    const quantity = ctx.gCurrentSku?.quantity || 1;
+
+    try {
+      await runAddToCart(
+        fetcher(`${BASE_URL}/api/carts/ajax-cart/add.js`, {
+          method: 'post',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            items: [
+              {
+                id: ctx.gCurrentSku!.skuSeq,
+                quantity,
+                properties: [
+                  {
+                    name: 'Booking',
+                    value: dayjs(currentSchedule.startTime).format('YYYY-MM-DD'),
+                    type: 'text',
+                  },
+                  {
+                    name: 'Date',
+                    value: dayjs(currentSchedule.startTime).format('YYYY-MM-DD'),
+                    type: 'text',
+                    show: true,
+                    export: true,
+                    extInfo: '',
+                  },
+                  {
+                    name: 'Time Range',
+                    value: `${dayjs(currentSchedule.startTime).format('HH:mm')}-${dayjs(
+                      currentSchedule.endTime
+                    ).format('HH:mm')}`,
+                    type: 'text',
+                    show: true,
+                    export: true,
+                    extInfo: '',
+                  },
+                  {
+                    name: 'planIds',
+                    value: `${currentSchedule.id}_${currentSchedule.adminId}_${currentSchedule.productId}_${currentSchedule.variantId}`,
+                    type: 'text',
+                    show: false,
+                    export: true,
+                    extInfo: '',
+                  },
+                ],
+              },
+            ],
+          }),
+        })
+      );
+      logger.log('Add to cart successfully');
+      gEventBus.emit('Cart::NavigateCart');
+    } catch (err) {
+      alert('Failed to add to cart');
+      throw err;
+    }
   });
 }
 

@@ -1,3 +1,5 @@
+/* eslint-disable no-param-reassign */
+/* eslint-disable prefer-destructuring */
 /* eslint-disable @typescript-eslint/comma-dangle */
 /* eslint-disable consistent-return */
 /* eslint-disable no-promise-executor-return */
@@ -6,8 +8,10 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-underscore-dangle */
+import dayjs from 'dayjs';
 import type HelloWeek from 'hello-week/src';
 import { SF_CALENDAR_CLASSES, SF_SCHEDULE_GRID_CONTAINER } from './constant';
+import { translation } from './translation';
 import { ScheduleItem } from './type';
 
 export function loadScript(src: string, id: string, options: Partial<HTMLScriptElement> = {}) {
@@ -76,25 +80,53 @@ export function findVariant(product: any, skuSeq: string) {
 export class Schedule {
   private listener: any;
 
+  public active: ScheduleItem | null = null;
+
   constructor(insert: Function, public scheduleItems: ScheduleItem[], public ctx: { colors: any }) {
     if (!this.scheduleItems || !this.scheduleItems.length) return;
 
     const container = document.createElement('div');
     container.classList.add(SF_SCHEDULE_GRID_CONTAINER);
-    const _colors = this.ctx.colors;
+    const { primary, activeColor } = this.ctx.colors;
     const content = scheduleItems
-      .map(
-        (item) =>
-          `<div class="schedule-item" style="color: ${_colors.primary}" data-type="schedule-item">${item.startTime}~${item.endTime}</div>`
-      )
+      .map((item, index) => {
+        const { startTime, endTime } = item;
+        const start = dayjs(startTime).format('HH:mm');
+        const end = dayjs(endTime).format('HH:mm');
+        const date = dayjs(startTime).format('YYYY-MM-DD');
+        const data = `data-type="schedule-item" data-index="${index}" data-start="${start} data-end="${end}"`;
+
+        return `<div class="schedule-item" 
+            style="background: ${primary}; color: #ffffff; width: 96px; height: 96px; cursor: pointer; display: flex; flex-direction: column; justify-content: center; line-height: 1.5; margin-bottom: 8px; text-align: center;"
+            ${data}
+          >
+            <div ${data}>${translation.got_it_on}</div>
+            <div ${data}>${date}</div>
+            <div ${data}>${start}~${end}</div>
+          </div>`;
+      })
       .join('');
     container.innerHTML = `<div style="display: flex; flex-wrap: wrap; gap: 16px;">${content}</div>`;
 
     insert(container);
 
-    this.listener = (e: MouseEvent) => {
-      const { target } = e;
-      console.log('target: ', target);
+    this.listener = (e: any) => {
+      const target: HTMLDivElement = e.target;
+      const type = target.getAttribute('data-type');
+      if (type !== 'schedule-item') return;
+
+      const index = Number(target.getAttribute('data-index')!);
+      this.active = this.scheduleItems[index];
+      const els = container.querySelectorAll<HTMLElement>('.schedule-item');
+      els.forEach((el, idx) => {
+        if (String(idx) === String(index)) {
+          el.classList.add('active');
+          el.style.background = activeColor;
+        } else {
+          el.style.background = primary;
+          el.classList.remove('active');
+        }
+      });
     };
     container.addEventListener('click', this.listener);
   }
