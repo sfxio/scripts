@@ -12,7 +12,7 @@ import dayjs from 'dayjs';
 import type HelloWeek from 'hello-week/src';
 import { SF_CALENDAR_CLASSES, SF_SCHEDULE_GRID_CONTAINER } from './constant';
 import { translation } from './translation';
-import { ScheduleItem } from './type';
+import type { ScheduleItem } from './type';
 
 export function loadScript(src: string, id: string, options: Partial<HTMLScriptElement> = {}) {
   return new Promise((resolve, reject) => {

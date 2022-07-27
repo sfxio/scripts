@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/comma-dangle */
 /* eslint-disable no-param-reassign */
 export default function useLoading(
   options: { before?: Function; after?: Function; error?: Function } = {}

@@ -19,16 +19,13 @@ import useLoading from './use-loading';
 import {
   SF_ADD_TO_CART_CLASSES,
   SF_BTNS,
-  SF_CALENDAR_CLASSES,
   SF_HELLO_WEEK_STYLE,
-  SF_JQUERY_TOAST_STYLE,
   SF_SELECT_BOOKING_DATE_CLASSES,
   SL_ADD_TO_CARTS,
   SL_BTNS,
   SL_BUY_NOW,
 } from './constant';
 import { createCalendar, findVariant, loadScript, Schedule, warning } from './utils';
-import { initJqueryToast, jqueryToastCss } from './jquery-toast';
 import { translation } from './translation';
 import { Colors, SfCtx, SkuData } from './type';
 // import './dayjs';
@@ -52,7 +49,7 @@ const logger = {
 };
 
 // @ts-ignore
-let $: JQueryStatic = window.$;
+// let $: JQueryStatic = window.$;
 // if (!$) {
 //   const script = document.createElement('script');
 //   script.async = true;
