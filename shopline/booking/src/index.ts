@@ -1,3 +1,6 @@
+/* eslint-disable import/prefer-default-export */
+/* eslint-disable no-debugger */
+/* eslint-disable operator-linebreak */
 /* eslint-disable no-param-reassign */
 /* eslint-disable prefer-const */
 /* eslint-disable no-unused-vars */
@@ -8,20 +11,30 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable @typescript-eslint/naming-convention */
 
-import './hello-week';
+import './hello-week-local';
+import type HelloWeek from 'hello-week/src';
+import blendColors, { createHelloWeekColor } from './color';
+import useLoading from './use-loading';
+import {
+  SF_ADD_TO_CART_CLASSES,
+  SF_BTNS,
+  SF_CALENDAR_CLASSES,
+  SF_HELLO_WEEK_STYLE,
+  SF_JQUERY_TOAST_STYLE,
+  SF_SELECT_BOOKING_DATE_CLASSES,
+  SL_ADD_TO_CARTS,
+  SL_BTNS,
+  SL_BUY_NOW,
+} from './constant';
+import { createCalendar, loadScript } from './utils';
+import { initJqueryToast, jqueryToastCss } from './jquery-toast';
+
 // import './hello.week.theme.min.css';
-
-export default {};
-
-const SF_SELECT_BOOKING_DATE_CLASSES = '__sf-select-booking-date';
-const SF_ADD_TO_CART_CLASSES = '__sf-add-to-cart';
-const SF_CALENDAR_CLASSES = '__sf-calendar';
-const SF_BOOKING_DATE_CLASSES = '__sf-booking-date';
-const SF_BOOKING_DATE_ACTIVE_CLASSES = '__sf-booking-active-date';
-
-const SL_BTNS = 'product-button-list';
-const SL_ADD_TO_CARTS = '__sl-custom-track-add-to-cart-btn';
-const SL_BUY_NOW = '__sl-custom-track-product-detail-buy-now';
+export const ctx: SfCtx = {
+  gCurrentCalendar: null,
+  gCurrentSku: null,
+  gProduct: null,
+};
 
 const logger = {
   log: (...args: any[]) => console.log('[SHOPFLEX LOG]: ', ...args),
@@ -30,7 +43,7 @@ const logger = {
 };
 
 // @ts-ignore
-// let $: JQueryStatic = window.$;
+let $: JQueryStatic = window.$;
 // if (!$) {
 //   const script = document.createElement('script');
 //   script.async = true;
@@ -78,10 +91,59 @@ interface SkuData {
   id: string;
 }
 
+interface Colors {
+  body?: string;
+  btn?: string;
+  btnBg?: string;
+  input?: string;
+  inputBg?: string;
+  inputBorder?: string;
+  link?: string;
+  maskBg?: string;
+  moduleBg?: string;
+  orderCanceledBg?: string;
+  orderConfirmedBg?: string;
+  orderFinishedBg?: string;
+  orderProcessingBg?: string;
+  pageBg?: string;
+  primary?: string;
+  productTitle?: string;
+  sale?: string;
+  saleDescription?: string;
+  star?: string;
+  statusError?: string;
+  tag?: string;
+  tagBg?: string;
+  tagDisabledBg?: string;
+  title?: string;
+  vip?: string;
+  vipBg?: string;
+  secondary?: string;
+  activeColor?: string;
+}
+
+interface SfCtx {
+  gCurrentSku: SkuData | null;
+  gProduct: any | null;
+  gCurrentCalendar: null | HelloWeek;
+}
+
 // @ts-ignore
 const gShopline = window.Shopline as any;
 const gEventBus = gShopline.event;
 const gLocale: 'en' | 'zh' | 'zh-cn' = (gShopline.locale || 'en').toLowerCase();
+const gColors: Colors = gShopline.theme?.settings?.colors || {};
+const {
+  primary = '#42a298',
+  pageBg = '#fff',
+  secondary = blendColors(primary, pageBg, 0.4),
+} = gColors;
+const activeColor: string =
+  gColors.activeColor || gShopline.theme?.settings.color_tag_background || '#e32619';
+logger.log('primary color: ', primary);
+logger.log('secondary color: ', secondary);
+logger.log('activeColor color: ', activeColor);
+
 const _translation = {
   select_booking_date: {
     en: 'Select booking date',
@@ -109,27 +171,71 @@ const gShopHandle = gShopline.handle;
 // eslint-disable-next-line @typescript-eslint/naming-convention, no-underscore-dangle
 const _productURL = decodeURIComponent(window.location.pathname).split('/');
 const gProductHandle = _productURL[_productURL.length - 1];
-let gCurrentSku: SkuData | null = null;
-let gProduct: any = null;
+// let gCurrentSku: SkuData | null = null;
+// let gProduct: any = null;
+// let gCurrentCalendar: null | HelloWeek = null;
+
+function _initStyle() {
+  logger.log('init style');
+  return new Promise((resolve) => {
+    if (!document.head.querySelector(`.${SF_HELLO_WEEK_STYLE}`)) {
+      const helloWeekCss = createHelloWeekColor(primary, secondary, activeColor);
+      const el = document.createElement('style');
+      el.classList.add(SF_HELLO_WEEK_STYLE);
+      el.innerHTML = helloWeekCss;
+      document.head.appendChild(el);
+    }
+
+    // if (!document.head.querySelector(`.${SF_JQUERY_TOAST_STYLE}`)) {
+    //   const el = document.createElement('style');
+    //   el.classList.add(SF_JQUERY_TOAST_STYLE);
+    //   el.innerHTML = jqueryToastCss;
+    //   document.head.appendChild(el);
+    // }
+
+    resolve('');
+  });
+}
 
 function getProduct() {
-  return fetcher(`https://${gShopHandle}.myshopline.com/api/product/products.json?handle=${gProductHandle}`).then(
-    (res) => res.products[0]
-  );
+  return fetcher(
+    `https://${gShopHandle}.myshopline.com/api/product/products.json?handle=${gProductHandle}`
+  ).then((res) => res.products[0]);
 }
 
 async function initBooking() {
-  gProduct = await getProduct();
-  logger.log('product: ', gProduct);
-  if (!gProduct) {
+  ctx.gProduct = await getProduct();
+  logger.log('product: ', ctx.gProduct);
+  if (!ctx.gProduct) {
     // logger.error('Failed to find current product: ');
     throw new Error('Failed to find current product: ');
   }
 }
 
+async function injectDep() {
+  logger.log('injectDep...');
+  _initStyle();
+  if (!$) {
+    await loadScript('https://code.jquery.com/jquery-3.6.0.min.js', 'sf-jquery', {
+      crossOrigin: 'anonymous',
+      integrity: 'sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=',
+      async: true,
+    });
+    // @ts-ignore
+    $ = window.$;
+  }
+  // initJqueryToast($);
+}
+
 function resetEl() {
   // TODO(rushui 2022-07-26): create element by self
-  const slBtns = document.querySelector(`.${SL_BTNS}`)!;
+  const slBtns = document.querySelector<HTMLDivElement>(`.${SL_BTNS}`)!;
+  const _position = slBtns.style.position;
+  slBtns.classList.add(SF_BTNS);
+  // if (!['fixed', 'relative', 'absolute', 'sticky'].includes(_position)) {
+  //   slBtns.style.position = 'relative';
+  // }
+
   const slAddToCartBtn = slBtns.querySelector<HTMLButtonElement>(`.${SL_ADD_TO_CARTS}`)!;
   const slBuyNowBtn = slBtns.querySelector<HTMLButtonElement>(`.${SL_BUY_NOW}`)!;
 
@@ -148,14 +254,53 @@ function initEvent() {
   // });
 
   gEventBus.on('Product::SkuChanged', ({ data }: { data: SkuData }) => {
-    gCurrentSku = data;
-    logger.log('change sku: ', gCurrentSku);
+    ctx.gCurrentSku = data;
+    logger.log('change sku: ', ctx.gCurrentSku);
+  });
+
+  const sfBtns = document.querySelector(`.${SF_BTNS}`)!;
+  const sfAddToCartBtn = sfBtns.querySelector<HTMLButtonElement>(`.${SF_ADD_TO_CART_CLASSES}`)!;
+  const sfSelectDateBtn = sfBtns.querySelector<HTMLButtonElement>(
+    `.${SF_SELECT_BOOKING_DATE_CLASSES}`
+  )!;
+
+  const { isLoading: isSelectedLoading, run: runSelect } = useLoading();
+  const { isLoading: isAddingToCartLoading, run: runAddToCart } = useLoading();
+
+  sfSelectDateBtn.addEventListener('click', async () => {
+    logger.log('click select booking btn.. ');
+    console.log('gCurrentSku: ', ctx.gCurrentSku);
+    if (ctx.gCurrentCalendar) {
+      ctx.gCurrentCalendar.destroy();
+      sfSelectDateBtn.innerHTML = translation.select_booking_date;
+      ctx.gCurrentCalendar = null;
+      return;
+    }
+
+    ctx.gCurrentCalendar = await createCalendar(
+      (calendarEl: any) => {
+        sfBtns.insertBefore(calendarEl, sfAddToCartBtn);
+      },
+      {
+        onSelect() {
+          const calendar = ctx.gCurrentCalendar!;
+          console.log(calendar.getDaySelected());
+        },
+      }
+    );
+
+    sfSelectDateBtn.innerHTML = translation.hidden;
+  });
+
+  sfAddToCartBtn.addEventListener('click', () => {
+    logger.log('click add to cart btn');
   });
 }
 
 async function main() {
   try {
     await initBooking();
+    await injectDep();
     await resetEl();
     await initEvent();
   } catch (err) {
