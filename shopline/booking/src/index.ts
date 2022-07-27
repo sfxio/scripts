@@ -26,7 +26,7 @@ import {
   SL_BTNS,
   SL_BUY_NOW,
 } from './constant';
-import { createCalendar, findVariant, loadScript, Schedule } from './utils';
+import { createCalendar, findVariant, loadScript, Schedule, warning } from './utils';
 import { initJqueryToast, jqueryToastCss } from './jquery-toast';
 import { translation } from './translation';
 import dayjs from 'dayjs';
@@ -90,8 +90,6 @@ const fetcher = (url: string, _options: RequestInit = {}) => {
 //   quantity: number;
 //   price: string;
 // }
-
-
 
 // @ts-ignore
 const gShopline = window.Shopline as any;
@@ -243,7 +241,7 @@ function initEvent() {
     const sku = ctx.gCurrentSku?.skuSeq;
     if (!sku) {
       // eslint-disable-next-line no-alert
-      alert(translation.please_select_a_sku_first);
+      warning(translation.please_select_a_sku_first);
       return;
     }
 
@@ -312,7 +310,7 @@ function initEvent() {
     const currentSchedule = ctx.gCurrentSchedule?.active;
     // 没有选择有效的时间段
     if (!currentSchedule) {
-      alert('Should select a valid booking date.');
+      warning(translation.please_select_a_valid_booking_date);
       return;
     }
 

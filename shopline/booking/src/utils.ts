@@ -33,7 +33,7 @@ export function loadScript(src: string, id: string, options: Partial<HTMLScriptE
   });
 }
 
-export const delay = (timeout = 200) =>
+export const delay = (timeout = 400) =>
   new Promise((resolve) => {
     setTimeout(resolve, timeout);
   });
@@ -62,7 +62,7 @@ export const createCalendar = async (insert: Function, options: any = {}) => {
     const el = document.querySelector<HTMLElement>(`.${SF_CALENDAR_CLASSES}`);
     if (el) {
       el.style.opacity = '0';
-      await delay(200);
+      await delay(400);
 
       el.remove();
       _destroy.apply(this, args);
@@ -141,3 +141,41 @@ export class Schedule {
 }
 
 // export function createScheduleGrid(scheduleItems: ScheduleItem[], ctx: { colors: any }) {}
+export async function warning(msg: string, timeout = 4000) {
+  const id = 'sf-warning';
+  const existedEl = document.getElementById(id);
+  if (existedEl) {
+    existedEl.style.opacity = '0';
+    await delay(400);
+    existedEl.remove();
+  }
+
+  const el = document.createElement(`div`);
+  el.id = id;
+  el.innerHTML = msg;
+
+  el.style.position = 'fixed';
+  el.style.zIndex = '10001';
+  el.style.position = '0';
+  el.style.top = '20px';
+  el.style.left = '50%';
+  el.style.border = '1px solid black';
+  el.style.color = `#663c00`;
+  el.style.background = `#fff4e5`;
+  el.style.borderColor = `#f5dab1`;
+  el.style.transform = 'translateX(-50%);';
+  el.style.transition = 'all 200ms';
+  el.style.lineHeight = '1.5';
+  el.style.padding = '16px 24px';
+  el.style.opacity = '1';
+  document.body.appendChild(el);
+
+  setTimeout(async () => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.style.opacity = '0';
+
+    await delay(400);
+    if (el) el.remove();
+  }, timeout);
+}

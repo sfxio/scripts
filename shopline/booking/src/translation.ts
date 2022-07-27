@@ -1,7 +1,9 @@
 // @ts-nocheck
 /* eslint-disable */
 
-const gLocale: 'en' | 'zh' | 'zh-cn' = (window.Shopline.locale || 'en').toLowerCase();
+const gLocale: 'en' | 'zh' | 'zh-cn' | 'zh-hans-cn' = (
+  window.Shopline.locale || 'en'
+).toLowerCase();
 const _translation = {
   select_booking_date: {
     en: 'Select booking date',
@@ -23,10 +25,14 @@ const _translation = {
     en: 'Got it on',
     zh: '预定于',
   },
+  please_select_a_valid_booking_date: {
+    en: 'Please select a valid booking date',
+    zh: '请选择有效的预约日期',
+  },
 } as const;
 
 export const translation = Object.keys(_translation).reduce((prev, key) => {
-  const locale = gLocale === 'zh-cn' ? 'zh' : gLocale;
+  const locale = (gLocale as string).includes('zh') ? 'zh' : 'en';
   // @ts-ignore
   prev[key] = _translation[key][locale];
 
