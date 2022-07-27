@@ -122,7 +122,7 @@
       const variantOptions: string[] = item.options || []
       return selectedOptions.every((option) => variantOptions.includes(option))
     })
-    gCurrentVariant = variant
+    gCurrentVariant = variant || gProductDetail.variants[0]
 
     logger.log(`click dateSelectorBtn: product_id=$${id}, variant = `, variant)
 
