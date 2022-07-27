@@ -16,6 +16,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
         option.mode = option.mode || 'cors';
         return _fetch(endpoint, option);
     };
+    var SL_PREFIX = window.origin;
     var eventBus = window.Shopline.event;
     eventBus.on('DataReport::ViewContent', function () {
         var args = [];
@@ -87,7 +88,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
         return Promise.resolve();
     }
     function initProductDetail() {
-        return fetch("https://".concat(gShopHandle, ".myshopline.com/api/product/products.json?handle=").concat(gProductHandle))
+        return fetch("".concat(SL_PREFIX, "/api/product/products.json?handle=").concat(gProductHandle))
             .then(function (response) { return response.json(); })
             .then(function (json) {
             return json.products[0];
@@ -242,7 +243,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
         logger.log("properties: selectedDate = ", gCurrentSelectedDate);
         logger.log("properties: timeRange = ", timeRange);
         logger.log("properties: planIds = ", planIds);
-        fetch("https://".concat(gShopHandle, ".myshopline.com/api/carts/ajax-cart/add.js"), {
+        fetch("".concat(SL_PREFIX, "/api/carts/ajax-cart/add.js"), {
             method: 'post',
             headers: {
                 Accept: 'application/json',

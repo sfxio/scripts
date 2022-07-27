@@ -34,7 +34,7 @@ export const ctx: SfCtx = {
   gCurrentCalendar: null,
   gCurrentSku: null,
   gProduct: null,
-  gCurrentSchedule: null,
+  gCurrentSchedules: null,
 };
 
 const logger = {
@@ -128,7 +128,7 @@ interface SfCtx {
   gCurrentSku: SkuData | null;
   gProduct: any | null;
   gCurrentCalendar: null | HelloWeek;
-  gCurrentSchedule: null | Record<string, any[]>;
+  gCurrentSchedules: null | Record<string, any[]>;
 }
 
 // @ts-ignore
@@ -311,8 +311,8 @@ function initEvent() {
 
     logger.log('scheduleData: ', scheduleData);
 
-    ctx.gCurrentSchedule = scheduleData;
-    const days = Object.keys(ctx.gCurrentSchedule || {});
+    ctx.gCurrentSchedules = scheduleData;
+    const days = Object.keys(ctx.gCurrentSchedules || {});
 
     ctx.gCurrentCalendar = await createCalendar(
       (calendarEl: any) => {
@@ -328,9 +328,10 @@ function initEvent() {
 
         onSelect() {
           const calendar = ctx.gCurrentCalendar!;
-          
-
-          console.log(calendar.getDaySelected());
+          const selectedDate = (calendar.getDaySelected() as any)[0];
+          console.log('selectedDate: ', selectedDate);
+          const schedule = ctx.gCurrentSchedules![selectedDate];
+          console.log('schedule: ', schedule);
         },
       }
     );

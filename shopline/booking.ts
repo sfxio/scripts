@@ -6,6 +6,8 @@
     return _fetch(endpoint, option)
   }
 
+  const SL_PREFIX = window.origin
+
   const eventBus = window.Shopline.event
   eventBus.on('DataReport::ViewContent', (...args) => {
     console.log('DataReport::ViewContent: ', args)
@@ -73,7 +75,7 @@
 
   function initProductDetail() {
     return fetch(
-      `https://${gShopHandle}.myshopline.com/api/product/products.json?handle=${gProductHandle}`,
+      `${SL_PREFIX}/api/product/products.json?handle=${gProductHandle}`,
     )
       .then((response) => response.json())
       .then((json) => {
@@ -274,7 +276,7 @@
     logger.log(`properties: timeRange = `, timeRange)
     logger.log(`properties: planIds = `, planIds)
 
-    fetch(`https://${gShopHandle}.myshopline.com/api/carts/ajax-cart/add.js`, {
+    fetch(`${SL_PREFIX}/api/carts/ajax-cart/add.js`, {
       method: 'post',
       headers: {
         Accept: 'application/json',
