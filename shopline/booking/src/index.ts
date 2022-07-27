@@ -13,6 +13,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 
 import './hello-week-local';
+import dayjs from 'dayjs';
 import blendColors, { createHelloWeekColor } from './color';
 import useLoading from './use-loading';
 import {
@@ -29,7 +30,6 @@ import {
 import { createCalendar, findVariant, loadScript, Schedule, warning } from './utils';
 import { initJqueryToast, jqueryToastCss } from './jquery-toast';
 import { translation } from './translation';
-import dayjs from 'dayjs';
 import { Colors, SfCtx, SkuData } from './type';
 // import './dayjs';
 
@@ -217,7 +217,7 @@ function initEvent() {
   const { isLoading: isAddingToCartLoading, run: runAddToCart } = useLoading({
     before: () => {
       content = sfAddToCartBtn.innerHTML;
-      sfAddToCartBtn.innerHTML = `Loading...`;
+      sfAddToCartBtn.innerHTML = 'Loading...';
       sfAddToCartBtn.disabled = true;
     },
     after: () => {
