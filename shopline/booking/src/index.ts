@@ -1,3 +1,4 @@
+/* eslint-disable object-curly-newline */
 /* eslint-disable import/prefer-default-export */
 /* eslint-disable no-debugger */
 /* eslint-disable operator-linebreak */
@@ -26,7 +27,7 @@ import {
   SL_BTNS,
   SL_BUY_NOW,
 } from './constant';
-import { createCalendar, findVariant, loadScript } from './utils';
+import { createCalendar, findVariant, loadScript, Schedule } from './utils';
 import { initJqueryToast, jqueryToastCss } from './jquery-toast';
 
 // import './hello.week.theme.min.css';
@@ -35,7 +36,11 @@ export const ctx: SfCtx = {
   gCurrentSku: null,
   gProduct: null,
   gCurrentSchedules: null,
+  gCurrentSchedule: null,
+  gSelectedDate: null,
 };
+
+const BASE_URL = window.origin;
 
 const logger = {
   log: (...args: any[]) => console.log('[SHOPFLEX LOG]: ', ...args),
@@ -129,6 +134,8 @@ interface SfCtx {
   gProduct: any | null;
   gCurrentCalendar: null | HelloWeek;
   gCurrentSchedules: null | Record<string, any[]>;
+  gCurrentSchedule: Schedule | null;
+  gSelectedDate: string | null;
 }
 
 // @ts-ignore
@@ -205,9 +212,9 @@ function _initStyle() {
 }
 
 function getProduct() {
-  return fetcher(
-    `https://${gShopHandle}.myshopline.com/api/product/products.json?handle=${gProductHandle}`
-  ).then((res) => res.products[0]);
+  return fetcher(`${BASE_URL}/api/product/products.json?handle=${gProductHandle}`).then(
+    (res) => res.products[0]
+  );
 }
 
 async function initBooking() {
@@ -329,9 +336,20 @@ function initEvent() {
         onSelect() {
           const calendar = ctx.gCurrentCalendar!;
           const selectedDate = (calendar.getDaySelected() as any)[0];
-          console.log('selectedDate: ', selectedDate);
           const schedule = ctx.gCurrentSchedules![selectedDate];
-          console.log('schedule: ', schedule);
+          if (!ctx.gSelectedDate === selectedDate) {
+            ctx.gSelectedDate = selectedDate;
+            ctx.gCurrentSchedule?.destroy();
+            ctx.gCurrentSchedule = new Schedule(
+              (el: HTMLElement) => {
+                // sfBtns.insertBefore(el, runAddToCart);
+              },
+              schedule,
+              {
+                colors: { primary, secondary, activeColor },
+              }
+            );
+          }
         },
       }
     );

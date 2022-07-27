@@ -6,6 +6,7 @@ export const SF_BOOKING_DATE_CLASSES = '__sf-booking-date';
 export const SF_BOOKING_DATE_ACTIVE_CLASSES = '__sf-booking-active-date';
 export const SF_HELLO_WEEK_STYLE = '__sf-hello-week-style';
 export const SF_JQUERY_TOAST_STYLE = '__sf-jquery-toast-style';
+export const SF_SCHEDULE_GRID_CONTAINER = '__sf-schedule-grid-container';
 
 export const SL_BTNS = 'product-button-list';
 export const SL_ADD_TO_CARTS = '__sl-custom-track-add-to-cart-btn';

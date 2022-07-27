@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/comma-dangle */
 /* eslint-disable consistent-return */
 /* eslint-disable no-promise-executor-return */
 /* eslint-disable implicit-arrow-linebreak */
@@ -6,7 +7,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-underscore-dangle */
 import type HelloWeek from 'hello-week/src';
-import { SF_CALENDAR_CLASSES } from './constant';
+import { SF_CALENDAR_CLASSES, SF_SCHEDULE_GRID_CONTAINER } from './constant';
+import { ScheduleItem } from './type';
 
 export function loadScript(src: string, id: string, options: Partial<HTMLScriptElement> = {}) {
   return new Promise((resolve, reject) => {
@@ -70,3 +72,40 @@ export function findVariant(product: any, skuSeq: string) {
   if (!product || !product.variants) return null;
   return product.variants.find((item: any) => item.id === skuSeq);
 }
+
+export class Schedule {
+  private listener: any;
+
+  constructor(insert: Function, public scheduleItems: ScheduleItem[], public ctx: { colors: any }) {
+    if (!this.scheduleItems || !this.scheduleItems.length) return;
+
+    const container = document.createElement('div');
+    container.classList.add(SF_SCHEDULE_GRID_CONTAINER);
+    const _colors = this.ctx.colors;
+    const content = scheduleItems
+      .map(
+        (item) =>
+          `<div class="schedule-item" style="color: ${_colors.primary}" data-type="schedule-item">${item.startTime}~${item.endTime}</div>`
+      )
+      .join('');
+    container.innerHTML = `<div style="display: flex; flex-wrap: wrap; gap: 16px;">${content}</div>`;
+
+    insert(container);
+
+    this.listener = (e: MouseEvent) => {
+      const { target } = e;
+      console.log('target: ', target);
+    };
+    container.addEventListener('click', this.listener);
+  }
+
+  destroy() {
+    const container = document.querySelector(`.${SF_SCHEDULE_GRID_CONTAINER}`);
+    if (!container) return;
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    this.listener && container.removeEventListener('click', this.listener);
+    container.remove();
+  }
+}
+
+// export function createScheduleGrid(scheduleItems: ScheduleItem[], ctx: { colors: any }) {}
