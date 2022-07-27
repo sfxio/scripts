@@ -109,15 +109,6 @@
       return
     }
 
-    // init
-    dateSelectorBtn.textContent = 'Hidden'
-    const calendar = document.createElement('div')
-    calendar.className = ['calendar ', 'hello-week', SF_CALENDAR_CLASSES].join(
-      ' ',
-    )
-    parent.insertBefore(calendar, addToCartBtn)
-    gIsCalendarVisible = true
-
     const selectedOptionsEl = document.getElementsByClassName(
       'attr-value active',
     )
@@ -146,9 +137,21 @@
         if (response.code === 200) {
           return response.data
         }
+        alert(`${response.message}`)
         return Promise.reject(new Error(response.message))
       })
       .then((data) => {
+        // init
+        dateSelectorBtn.textContent = 'Hidden'
+        const calendar = document.createElement('div')
+        calendar.className = [
+          'calendar ',
+          'hello-week',
+          SF_CALENDAR_CLASSES,
+        ].join(' ')
+        parent.insertBefore(calendar, addToCartBtn)
+        gIsCalendarVisible = true
+
         gScheduleData = data || {}
         logger.log('schedule: ', gScheduleData)
         const keys = Object.keys(gScheduleData)
@@ -347,22 +350,14 @@
     return Promise.resolve()
   }
 
-  function main() {
-    resetEl()
-      .then(() => {
-        return initProductDetail()
-      })
-      .then(() => {
-        if (!canInject(gProductDetail))
-          return Promise.reject(new Error('is not a booking product'))
-      })
-      .then(() => {
-        return initEvent()
-      })
-      .catch((err) => {
-        logger.warn(err)
-      })
+  async function main() {
+    await initProductDetail()
+    if (!canInject(gProductDetail)) throw new Error('is not a booking product')
+    await resetEl()
+    await initEvent()
   }
 
   main()
+    .then(() => logger.log('booking is running...'))
+    .catch((err) => logger.warn('error with: ', err))
 })()
