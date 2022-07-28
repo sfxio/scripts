@@ -86,7 +86,7 @@ export function findVariant(product: any, skuSeq: string) {
 }
 
 export class Schedule {
-  private capacity: number = Number.MAX_SAFE_INTEGER;
+  public capacity: number = Number.MAX_SAFE_INTEGER;
 
   private listener: any;
 

@@ -329,11 +329,13 @@ function initEvent() {
       return;
     }
 
+    const scheduleInstance = ctx.gCurrentSchedule!;
+    const { capacity, currentLocation, currentResource } = scheduleInstance;
     const quantity = getQuantity();
-    if (quantity > currentSchedule.capacity) {
+    if (quantity > capacity) {
       warning(
         translation.capacity_exceed
-          .replace('{{capacity}}', `${currentSchedule.capacity}`)
+          .replace('{{capacity}}', `${capacity}`)
           .replace('{{quantity}}', `${quantity}`)
       );
 
@@ -343,6 +345,29 @@ function initEvent() {
     logger.log(`add to cart - sku = ${ctx.gCurrentSku?.skuSeq}, quantity: ${quantity}`);
 
     try {
+      const ids = `${currentSchedule.id}_${currentSchedule.adminId}_${currentSchedule.productId}_${
+        currentSchedule.variantId
+      }_${currentLocation?.id || 0}_${currentResource?.id || 0}`;
+      const extra: any[] = [];
+      if (currentLocation) {
+        extra.push({
+          name: 'Address',
+          value: currentLocation.name,
+          type: 'text',
+          show: true,
+          export: true,
+        });
+      }
+      if (currentResource) {
+        extra.push({
+          name: 'Resource',
+          value: currentResource.name,
+          type: 'text',
+          show: true,
+          export: true,
+        });
+      }
+
       await runAddToCart(
         fetcher(`${BASE_URL}/api/carts/ajax-cart/add.js`, {
           method: 'post',
@@ -361,6 +386,7 @@ function initEvent() {
                     value: dayjs(currentSchedule.startTime).format('YYYY-MM-DD'),
                     type: 'text',
                   },
+                  ...extra,
                   {
                     name: 'Date',
                     value: dayjs(currentSchedule.startTime).format('YYYY-MM-DD'),
@@ -382,7 +408,7 @@ function initEvent() {
                   {
                     name: 'planIds',
                     // addressId_resourceId
-                    value: `${currentSchedule.id}_${currentSchedule.adminId}_${currentSchedule.productId}_${currentSchedule.variantId}`,
+                    value: ids,
                     type: 'text',
                     show: false,
                     export: true,
@@ -390,7 +416,7 @@ function initEvent() {
                   },
                   {
                     name: 'uniqueCode',
-                    value: '',
+                    value: ids,
                     type: 'text',
                     show: true,
                     export: true,
