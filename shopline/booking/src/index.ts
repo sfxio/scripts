@@ -25,9 +25,18 @@ import {
   SL_BTNS,
   SL_BUY_NOW,
 } from './constant';
-import { createCalendar, findVariant, getQuantity, loadScript, Schedule, warning } from './utils';
+import {
+  createCalendar,
+  findVariant,
+  getQuantity,
+  isValidDate,
+  loadScript,
+  Schedule,
+  warning,
+} from './utils';
 import { translation } from './translation';
 import { Colors, SfCtx, SkuData } from './type';
+import { logger } from './logger';
 // import './dayjs';
 
 // import './hello.week.theme.min.css';
@@ -41,12 +50,7 @@ export const ctx: SfCtx = {
 };
 
 const BASE_URL = window.origin;
-
-const logger = {
-  log: (...args: any[]) => console.log('[SHOPFLEX LOG]: ', ...args),
-  warn: (...args: any[]) => console.warn('[SHOPFLEX WARN]: ', ...args),
-  error: (...args: any[]) => console.error('[SHOPFLEX ERROR]: ', ...args),
-};
+const IS_DEV = true;
 
 // @ts-ignore
 // let $: JQueryStatic = window.$;
@@ -144,7 +148,7 @@ function prepare() {
   logger.log('prepare...');
   if (window.location.href.includes('shopflex_testing')) {
     logger.log('testing..');
-    throw new Error('Shopflex testing...');
+    if (!IS_DEV) throw new Error('Shopflex testing...');
   }
 }
 
@@ -270,7 +274,11 @@ function initEvent() {
     logger.log('scheduleData: ', scheduleData);
 
     ctx.gCurrentSchedules = scheduleData;
-    const days = Object.keys(ctx.gCurrentSchedules || {});
+    const schedules = ctx.gCurrentSchedules || {};
+    const days = Object.keys(schedules).filter(isValidDate);
+    // console.log('days: ', days);
+    const locations = scheduleData.locations || [];
+    const resources = scheduleData.resources || [];
 
     ctx.gCurrentCalendar = await createCalendar(
       (calendarEl: any) => {
@@ -299,6 +307,8 @@ function initEvent() {
               schedule,
               {
                 colors: { primary, secondary, activeColor },
+                locations,
+                resources,
               }
             );
           }
@@ -371,9 +381,18 @@ function initEvent() {
                   },
                   {
                     name: 'planIds',
+                    // addressId_resourceId
                     value: `${currentSchedule.id}_${currentSchedule.adminId}_${currentSchedule.productId}_${currentSchedule.variantId}`,
                     type: 'text',
                     show: false,
+                    export: true,
+                    extInfo: '',
+                  },
+                  {
+                    name: 'uniqueCode',
+                    value: '',
+                    type: 'text',
+                    show: true,
                     export: true,
                     extInfo: '',
                   },

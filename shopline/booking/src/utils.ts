@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/indent */
 /* eslint-disable no-param-reassign */
 /* eslint-disable prefer-destructuring */
 /* eslint-disable @typescript-eslint/comma-dangle */
@@ -10,7 +11,14 @@
 /* eslint-disable no-underscore-dangle */
 import dayjs from 'dayjs';
 import type HelloWeek from 'hello-week/src';
-import { SF_CALENDAR_CLASSES, SF_SCHEDULE_GRID_CONTAINER } from './constant';
+import {
+  SF_CALENDAR_CLASSES,
+  SF_CAPACITY,
+  SF_SCHEDULE_GRID_CONTAINER,
+  SF_SCHEDULE_LOCATIONS,
+  SF_SCHEDULE_RESOURCES,
+} from './constant';
+import { logger } from './logger';
 import { translation } from './translation';
 import type { ScheduleItem } from './type';
 
@@ -78,16 +86,29 @@ export function findVariant(product: any, skuSeq: string) {
 }
 
 export class Schedule {
+  private capacity: number = Number.MAX_SAFE_INTEGER;
+
   private listener: any;
+
+  private selectListener: any;
 
   public active: ScheduleItem | null = null;
 
-  constructor(insert: Function, public scheduleItems: ScheduleItem[], public ctx: { colors: any }) {
+  public currentLocation: any | null = null;
+
+  public currentResource: any | null = null;
+
+  constructor(
+    insert: Function,
+    public scheduleItems: ScheduleItem[],
+    public ctx: { colors: any; locations: any[]; resources: any[] }
+  ) {
     if (!this.scheduleItems || !this.scheduleItems.length) return;
 
     const container = document.createElement('div');
     container.classList.add(SF_SCHEDULE_GRID_CONTAINER);
     const { primary, activeColor } = this.ctx.colors;
+    const { locations, resources } = this.ctx;
     const content = scheduleItems
       .map((item, index) => {
         const { startTime, endTime } = item;
@@ -103,12 +124,71 @@ export class Schedule {
             <div ${data}>${translation.got_it_on}</div>
             <div ${data}>${date}</div>
             <div ${data}>${start}~${end}</div>
+            <div ${data}></div>
           </div>`;
       })
       .join('');
-    container.innerHTML = `<div style="display: flex; flex-wrap: wrap; gap: 16px;">${content}</div>`;
+    let resourcesContent = '';
+    let locationsContent = '';
+
+    if (locations.length) {
+      locationsContent = `
+<div style="vertical-align: middle; font-size: 1.2em">
+  <span style="color: red;">*</span>
+  <span>
+    ${translation.location}:
+  </span>
+  <select style="min-width: 120px; text-align: center; height: 2.2em;" class=${SF_SCHEDULE_LOCATIONS} data-type="location">
+    ${locations
+      .map((location) => `<option value="${location.id}">${location.name}</option>`)
+      .join('')}
+  </select>
+</div>
+`;
+    }
+
+    if (resources.length) {
+      resourcesContent = `
+<div style="vertical-align: middle; font-size: 1.2em">
+  <span style="color: red;">*</span>
+  <span>
+    ${translation.resource}:
+  </span>
+  <select style="min-width: 120px; text-align: center; height: 2.2em;" class=${SF_SCHEDULE_RESOURCES} data-type="resource">
+    ${resources
+      .map((resource) => `<option value="${resource.id}">${resource.name}</option>`)
+      .join('')}
+  </select>
+</div>
+`;
+    }
+
+    container.innerHTML = `
+<div style="display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 16px;">${content}</div>
+<div style="display: flex; gap: 16px; margin-bottom: 16px;">${locationsContent}${resourcesContent}</div>
+<div style="color: #171f2b; font-size: 14px; margin-bottom: 16px;" class="${SF_CAPACITY}"></div>
+`;
 
     insert(container);
+
+    this.selectListener = (e: any) => {
+      const target: HTMLSelectElement = e.target;
+      this.initSelect(target);
+      // const type = target.getAttribute('data-type');
+      // const value = target.value;
+      // if (type === 'location') {
+      //   const location = locations.find((item: any) => String(item.id) === String(value));
+      //   this.currentLocation = location;
+      // } else {
+      //   const resource = resources.find((item: any) => String(item.id) === String(value));
+      //   this.currentResource = resource;
+      // }
+    };
+
+    container.querySelectorAll('select').forEach((select) => {
+      this.initSelect(select);
+      select.addEventListener('change', this.selectListener);
+    });
 
     this.listener = (e: any) => {
       const target: HTMLDivElement = e.target;
@@ -133,10 +213,56 @@ export class Schedule {
 
   destroy() {
     const container = document.querySelector(`.${SF_SCHEDULE_GRID_CONTAINER}`);
+    this.active = null;
+    this.currentLocation = null;
+    this.currentResource = null;
+    this.capacity = Number.MAX_SAFE_INTEGER;
     if (!container) return;
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     this.listener && container.removeEventListener('click', this.listener);
+
+    if (this.selectListener) {
+      container
+        .querySelectorAll('select')
+        .forEach((select) => select.removeEventListener('change', this.selectListener));
+    }
     container.remove();
+  }
+
+  private initSelect(target: HTMLSelectElement) {
+    // logger.log('init select');
+    const type = target.getAttribute('data-type');
+    const value = target.value;
+    const locations = this.ctx.locations;
+    const resources = this.ctx.resources;
+    if (type === 'location') {
+      const location = locations.find((item: any) => String(item.id) === String(value));
+      this.currentLocation = location;
+    } else {
+      const resource = resources.find((item: any) => String(item.id) === String(value));
+      this.currentResource = resource;
+    }
+    this.capacity = Number.MAX_SAFE_INTEGER;
+    if (this.active) {
+      this.capacity = Math.min(this.capacity, this.active.capacity || Number.MAX_SAFE_INTEGER);
+    }
+    if (this.currentLocation) {
+      this.capacity = Math.min(
+        this.capacity,
+        this.currentLocation.capacity || Number.MAX_SAFE_INTEGER
+      );
+    }
+    if (this.currentResource) {
+      this.capacity = Math.min(
+        this.capacity,
+        this.currentResource.capacity || Number.MAX_SAFE_INTEGER
+      );
+    }
+    if (this.capacity === Number.MAX_SAFE_INTEGER) this.capacity = 0;
+    const el = document.querySelector(`.${SF_CAPACITY}`);
+    if (el) el.innerHTML = `${translation.capacity}: ${this.capacity}`;
+    // logger.log('location: ', this.currentLocation);
+    // logger.log('resource: ', this.currentResource);
   }
 }
 
@@ -219,4 +345,8 @@ export function getQuantity(defaultVal = 1) {
   const value = Number(el.value);
   if (value <= 0) return defaultVal;
   return value;
+}
+
+export function isValidDate(date: string) {
+  return /\d{2}-\d{2}-\d{2}/.test(date);
 }

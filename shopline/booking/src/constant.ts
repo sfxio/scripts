@@ -7,6 +7,11 @@ export const SF_BOOKING_DATE_ACTIVE_CLASSES = '__sf-booking-active-date';
 export const SF_HELLO_WEEK_STYLE = '__sf-hello-week-style';
 export const SF_JQUERY_TOAST_STYLE = '__sf-jquery-toast-style';
 export const SF_SCHEDULE_GRID_CONTAINER = '__sf-schedule-grid-container';
+export const SF_SCHEDULE_RESOURCES = '__sf-schedule-resources';
+export const SF_SCHEDULE_LOCATIONS = '__sf-schedule-resources';
+export const SF_SCHEDULE_CONTAINER = '__sf-schedule-container';
+export const SF_FLEX_BOX = '__sf-flex-box';
+export const SF_CAPACITY = '__sf-capacity';
 
 export const SL_BTNS = 'product-button-list';
 export const SL_ADD_TO_CARTS = '__sl-custom-track-add-to-cart-btn';

@@ -38,6 +38,22 @@ const _translation = {
       'The capacity is excessive, the effective capacity is {{capacity}}, and the current purchase quantity is {{quantity}}',
     zh: '容量超额，有效容量为{{capacity}}，当前购买的数量为{{quantity}}。',
   },
+  capacity: {
+    en: 'Capacity',
+    zh: '容量',
+  },
+  location: {
+    en: 'Address',
+    zh: '地址',
+  },
+  resource: {
+    en: 'Resource',
+    zh: '资源',
+  },
+  please_select: {
+    en: 'Please select',
+    zh: '请选择',
+  },
 } as const;
 
 export const translation = Object.keys(_translation).reduce((prev, key) => {
