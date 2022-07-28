@@ -351,7 +351,7 @@ function initEvent() {
       const extra: any[] = [];
       if (currentLocation) {
         extra.push({
-          name: 'Address',
+          name: 'Location',
           value: currentLocation.name,
           type: 'text',
           show: true,

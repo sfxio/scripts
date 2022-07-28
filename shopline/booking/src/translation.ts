@@ -43,8 +43,8 @@ const _translation = {
     zh: '容量',
   },
   location: {
-    en: 'Address',
-    zh: '地址',
+    en: 'Location',
+    zh: '位置',
   },
   resource: {
     en: 'Resource',
