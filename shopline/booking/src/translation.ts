@@ -34,8 +34,9 @@ const _translation = {
     zh: '加入购物车失败',
   },
   capacity_exceed: {
-    en: 'Capacity exceed',
-    zh: '容量超额',
+    en:
+      'The capacity is excessive, the effective capacity is {{capacity}}, and the current purchase quantity is {{quantity}}',
+    zh: '容量超额，有效容量为{{capacity}}，当前购买的数量为{{quantity}}。',
   },
 } as const;
 

@@ -1530,8 +1530,8 @@
           zh: '加入购物车失败',
       },
       capacity_exceed: {
-          en: 'Capacity exceed',
-          zh: '容量超额',
+          en: 'The capacity is excessive, the effective capacity is {{capacity}}, and the current purchase quantity is {{quantity}}',
+          zh: '容量超额，有效容量为{{capacity}}，当前购买的数量为{{quantity}}。',
       },
   };
   const translation = Object.keys(_translation).reduce((prev, key) => {
@@ -1651,7 +1651,7 @@
       const existedEl = document.getElementById(id);
       if (existedEl) {
           existedEl.style.opacity = '0';
-          await delay(3000);
+          await delay(200);
           existedEl.remove();
       }
       const el = document.createElement('div');
@@ -1666,8 +1666,9 @@
       el.style.color = colors.color;
       el.style.background = colors.background;
       el.style.borderColor = colors.border;
-      el.style.transform = 'translateX(-50%);';
+      el.style.transform = 'translateX(-50%)';
       el.style.minWidth = '300px';
+      el.style.maxWidth = '420px';
       el.style.transition = 'all 200ms';
       el.style.lineHeight = '1.5';
       el.style.padding = '16px 24px';
@@ -1951,7 +1952,9 @@
           }
           const quantity = getQuantity();
           if (quantity > currentSchedule.capacity) {
-              warning(translation.capacity_exceed);
+              warning(translation.capacity_exceed
+                  .replace('{{capacity}}', `${currentSchedule.capacity}`)
+                  .replace('{{quantity}}', `${quantity}`));
               return;
           }
           logger.log(`add to cart - sku = ${(_b = ctx.gCurrentSku) === null || _b === void 0 ? void 0 : _b.skuSeq}, quantity: ${quantity}`);

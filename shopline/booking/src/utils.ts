@@ -149,7 +149,7 @@ async function message(
   const existedEl = document.getElementById(id);
   if (existedEl) {
     existedEl.style.opacity = '0';
-    await delay(3000);
+    await delay(200);
     existedEl.remove();
   }
 
@@ -166,8 +166,9 @@ async function message(
   el.style.color = colors.color;
   el.style.background = colors.background;
   el.style.borderColor = colors.border;
-  el.style.transform = 'translateX(-50%);';
+  el.style.transform = 'translateX(-50%)';
   el.style.minWidth = '300px';
+  el.style.maxWidth = '420px';
   el.style.transition = 'all 200ms';
   el.style.lineHeight = '1.5';
   el.style.padding = '16px 24px';

@@ -321,7 +321,11 @@ function initEvent() {
 
     const quantity = getQuantity();
     if (quantity > currentSchedule.capacity) {
-      warning(translation.capacity_exceed);
+      warning(
+        translation.capacity_exceed
+          .replace('{{capacity}}', `${currentSchedule.capacity}`)
+          .replace('{{quantity}}', `${quantity}`)
+      );
 
       return;
     }
