@@ -1493,6 +1493,9 @@
   const SF_CALENDAR_CLASSES = '__sf-calendar';
   const SF_HELLO_WEEK_STYLE = '__sf-hello-week-style';
   const SF_SCHEDULE_GRID_CONTAINER = '__sf-schedule-grid-container';
+  const SF_SCHEDULE_RESOURCES = '__sf-schedule-resources';
+  const SF_SCHEDULE_LOCATIONS = '__sf-schedule-resources';
+  const SF_CAPACITY = '__sf-capacity';
   const SL_BTNS = 'product-button-list';
   const SL_ADD_TO_CARTS = '__sl-custom-track-add-to-cart-btn';
   const SL_BUY_NOW = '__sl-custom-track-product-detail-buy-now';
@@ -1533,6 +1536,22 @@
           en: 'The capacity is excessive, the effective capacity is {{capacity}}, and the current purchase quantity is {{quantity}}',
           zh: '容量超额，有效容量为{{capacity}}，当前购买的数量为{{quantity}}。',
       },
+      capacity: {
+          en: 'Capacity',
+          zh: '容量',
+      },
+      location: {
+          en: 'Address',
+          zh: '地址',
+      },
+      resource: {
+          en: 'Resource',
+          zh: '资源',
+      },
+      please_select: {
+          en: 'Please select',
+          zh: '请选择',
+      },
   };
   const translation = Object.keys(_translation).reduce((prev, key) => {
       const locale = gLocale.includes('zh') ? 'zh' : 'en';
@@ -1541,7 +1560,7 @@
       return prev;
   }, Object.create(null));
 
-  /* eslint-disable no-param-reassign */
+  /* eslint-disable @typescript-eslint/indent */
   function loadScript(src, id, options = {}) {
       return new Promise((resolve, reject) => {
           const el = document.querySelector(`script#${id}`);
@@ -1591,12 +1610,16 @@
       constructor(insert, scheduleItems, ctx) {
           this.scheduleItems = scheduleItems;
           this.ctx = ctx;
+          this.capacity = Number.MAX_SAFE_INTEGER;
           this.active = null;
+          this.currentLocation = null;
+          this.currentResource = null;
           if (!this.scheduleItems || !this.scheduleItems.length)
               return;
           const container = document.createElement('div');
           container.classList.add(SF_SCHEDULE_GRID_CONTAINER);
           const { primary, activeColor } = this.ctx.colors;
+          const { locations, resources } = this.ctx;
           const content = scheduleItems
               .map((item, index) => {
               const { startTime, endTime } = item;
@@ -1611,11 +1634,65 @@
             <div ${data}>${translation.got_it_on}</div>
             <div ${data}>${date}</div>
             <div ${data}>${start}~${end}</div>
+            <div ${data}></div>
           </div>`;
           })
               .join('');
-          container.innerHTML = `<div style="display: flex; flex-wrap: wrap; gap: 16px;">${content}</div>`;
+          let resourcesContent = '';
+          let locationsContent = '';
+          if (locations.length) {
+              locationsContent = `
+<div style="vertical-align: middle; font-size: 1.2em">
+  <span style="color: red;">*</span>
+  <span>
+    ${translation.location}:
+  </span>
+  <select style="min-width: 120px; text-align: center; height: 2.2em;" class=${SF_SCHEDULE_LOCATIONS} data-type="location">
+    ${locations
+                .map((location) => `<option value="${location.id}">${location.name}</option>`)
+                .join('')}
+  </select>
+</div>
+`;
+          }
+          if (resources.length) {
+              resourcesContent = `
+<div style="vertical-align: middle; font-size: 1.2em">
+  <span style="color: red;">*</span>
+  <span>
+    ${translation.resource}:
+  </span>
+  <select style="min-width: 120px; text-align: center; height: 2.2em;" class=${SF_SCHEDULE_RESOURCES} data-type="resource">
+    ${resources
+                .map((resource) => `<option value="${resource.id}">${resource.name}</option>`)
+                .join('')}
+  </select>
+</div>
+`;
+          }
+          container.innerHTML = `
+<div style="display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 16px;">${content}</div>
+<div style="display: flex; gap: 16px; margin-bottom: 16px;">${locationsContent}${resourcesContent}</div>
+<div style="color: #171f2b; font-size: 14px; margin-bottom: 16px;" class="${SF_CAPACITY}"></div>
+`;
           insert(container);
+          this.selectListener = (e) => {
+              const target = e.target;
+              this.initSelect(target);
+              // const type = target.getAttribute('data-type');
+              // const value = target.value;
+              // if (type === 'location') {
+              //   const location = locations.find((item: any) => String(item.id) === String(value));
+              //   this.currentLocation = location;
+              // } else {
+              //   const resource = resources.find((item: any) => String(item.id) === String(value));
+              //   this.currentResource = resource;
+              // }
+          };
+          container.querySelectorAll('select').forEach((select) => {
+              this.initSelect(select);
+              select.addEventListener('change', this.selectListener);
+          });
           this.listener = (e) => {
               const target = e.target;
               const type = target.getAttribute('data-type');
@@ -1639,11 +1716,52 @@
       }
       destroy() {
           const container = document.querySelector(`.${SF_SCHEDULE_GRID_CONTAINER}`);
+          this.active = null;
+          this.currentLocation = null;
+          this.currentResource = null;
+          this.capacity = Number.MAX_SAFE_INTEGER;
           if (!container)
               return;
           // eslint-disable-next-line @typescript-eslint/no-unused-expressions
           this.listener && container.removeEventListener('click', this.listener);
+          if (this.selectListener) {
+              container
+                  .querySelectorAll('select')
+                  .forEach((select) => select.removeEventListener('change', this.selectListener));
+          }
           container.remove();
+      }
+      initSelect(target) {
+          // logger.log('init select');
+          const type = target.getAttribute('data-type');
+          const value = target.value;
+          const locations = this.ctx.locations;
+          const resources = this.ctx.resources;
+          if (type === 'location') {
+              const location = locations.find((item) => String(item.id) === String(value));
+              this.currentLocation = location;
+          }
+          else {
+              const resource = resources.find((item) => String(item.id) === String(value));
+              this.currentResource = resource;
+          }
+          this.capacity = Number.MAX_SAFE_INTEGER;
+          if (this.active) {
+              this.capacity = Math.min(this.capacity, this.active.capacity || Number.MAX_SAFE_INTEGER);
+          }
+          if (this.currentLocation) {
+              this.capacity = Math.min(this.capacity, this.currentLocation.capacity || Number.MAX_SAFE_INTEGER);
+          }
+          if (this.currentResource) {
+              this.capacity = Math.min(this.capacity, this.currentResource.capacity || Number.MAX_SAFE_INTEGER);
+          }
+          if (this.capacity === Number.MAX_SAFE_INTEGER)
+              this.capacity = 0;
+          const el = document.querySelector(`.${SF_CAPACITY}`);
+          if (el)
+              el.innerHTML = `${translation.capacity}: ${this.capacity}`;
+          // logger.log('location: ', this.currentLocation);
+          // logger.log('resource: ', this.currentResource);
       }
   }
   async function message(msg, timeout, colors) {
@@ -1701,6 +1819,17 @@
           return defaultVal;
       return value;
   }
+  function isValidDate(date) {
+      return /\d{2}-\d{2}-\d{2}/.test(date);
+  }
+
+  /* eslint-disable no-console */
+  /* eslint-disable import/prefer-default-export */
+  const logger = {
+      log: (...args) => console.log('[SHOPFLEX LOG]: ', ...args),
+      warn: (...args) => console.warn('[SHOPFLEX WARN]: ', ...args),
+      error: (...args) => console.error('[SHOPFLEX ERROR]: ', ...args),
+  };
 
   /* eslint-disable object-curly-newline */
   /* eslint-disable import/prefer-default-export */
@@ -1727,11 +1856,6 @@
       gSelectedDate: null,
   };
   const BASE_URL = window.origin;
-  const logger = {
-      log: (...args) => console.log('[SHOPFLEX LOG]: ', ...args),
-      warn: (...args) => console.warn('[SHOPFLEX WARN]: ', ...args),
-      error: (...args) => console.error('[SHOPFLEX ERROR]: ', ...args),
-  };
   // @ts-ignore
   // let $: JQueryStatic = window.$;
   // if (!$) {
@@ -1911,7 +2035,11 @@
           });
           logger.log('scheduleData: ', scheduleData);
           ctx.gCurrentSchedules = scheduleData;
-          const days = Object.keys(ctx.gCurrentSchedules || {});
+          const schedules = ctx.gCurrentSchedules || {};
+          const days = Object.keys(schedules).filter(isValidDate);
+          // console.log('days: ', days);
+          const locations = scheduleData.locations || [];
+          const resources = scheduleData.resources || [];
           ctx.gCurrentCalendar = await createCalendar((calendarEl) => {
               sfBtns.insertBefore(calendarEl, sfAddToCartBtn);
           }, {
@@ -1934,6 +2062,8 @@
                           sfBtns.insertBefore(el, sfAddToCartBtn);
                       }, schedule, {
                           colors: { primary, secondary, activeColor },
+                          locations,
+                          resources,
                       });
                   }
               },
@@ -1950,15 +2080,37 @@
               warning(translation.please_select_a_valid_booking_date);
               return;
           }
+          const scheduleInstance = ctx.gCurrentSchedule;
+          const { capacity, currentLocation, currentResource } = scheduleInstance;
           const quantity = getQuantity();
-          if (quantity > currentSchedule.capacity) {
+          if (quantity > capacity) {
               warning(translation.capacity_exceed
-                  .replace('{{capacity}}', `${currentSchedule.capacity}`)
+                  .replace('{{capacity}}', `${capacity}`)
                   .replace('{{quantity}}', `${quantity}`));
               return;
           }
           logger.log(`add to cart - sku = ${(_b = ctx.gCurrentSku) === null || _b === void 0 ? void 0 : _b.skuSeq}, quantity: ${quantity}`);
           try {
+              const ids = `${currentSchedule.id}_${currentSchedule.adminId}_${currentSchedule.productId}_${currentSchedule.variantId}_${(currentLocation === null || currentLocation === void 0 ? void 0 : currentLocation.id) || 0}_${(currentResource === null || currentResource === void 0 ? void 0 : currentResource.id) || 0}`;
+              const extra = [];
+              if (currentLocation) {
+                  extra.push({
+                      name: 'Address',
+                      value: currentLocation.name,
+                      type: 'text',
+                      show: true,
+                      export: true,
+                  });
+              }
+              if (currentResource) {
+                  extra.push({
+                      name: 'Resource',
+                      value: currentResource.name,
+                      type: 'text',
+                      show: true,
+                      export: true,
+                  });
+              }
               await runAddToCart(fetcher(`${BASE_URL}/api/carts/ajax-cart/add.js`, {
                   method: 'post',
                   headers: {
@@ -1976,6 +2128,7 @@
                                       value: dayjs_min(currentSchedule.startTime).format('YYYY-MM-DD'),
                                       type: 'text',
                                   },
+                                  ...extra,
                                   {
                                       name: 'Date',
                                       value: dayjs_min(currentSchedule.startTime).format('YYYY-MM-DD'),
@@ -1994,9 +2147,18 @@
                                   },
                                   {
                                       name: 'planIds',
-                                      value: `${currentSchedule.id}_${currentSchedule.adminId}_${currentSchedule.productId}_${currentSchedule.variantId}`,
+                                      // addressId_resourceId
+                                      value: ids,
                                       type: 'text',
                                       show: false,
+                                      export: true,
+                                      extInfo: '',
+                                  },
+                                  {
+                                      name: 'uniqueCode',
+                                      value: ids,
+                                      type: 'text',
+                                      show: true,
                                       export: true,
                                       extInfo: '',
                                   },

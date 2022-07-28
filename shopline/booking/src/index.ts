@@ -50,7 +50,7 @@ export const ctx: SfCtx = {
 };
 
 const BASE_URL = window.origin;
-const IS_DEV = true;
+const IS_DEV = false;
 
 // @ts-ignore
 // let $: JQueryStatic = window.$;
