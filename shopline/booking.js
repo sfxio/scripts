@@ -1541,8 +1541,8 @@
           zh: '容量',
       },
       location: {
-          en: 'Address',
-          zh: '地址',
+          en: 'Location',
+          zh: '位置',
       },
       resource: {
           en: 'Resource',
@@ -2095,7 +2095,7 @@
               const extra = [];
               if (currentLocation) {
                   extra.push({
-                      name: 'Address',
+                      name: 'Location',
                       value: currentLocation.name,
                       type: 'text',
                       show: true,
