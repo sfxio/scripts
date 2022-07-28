@@ -140,13 +140,16 @@ export class Schedule {
   }
 }
 
-// export function createScheduleGrid(scheduleItems: ScheduleItem[], ctx: { colors: any }) {}
-export async function warning(msg: string, timeout = 4000) {
-  const id = 'sf-warning';
+async function message(
+  msg: string,
+  timeout: number,
+  colors: { color: string; background: string; border: string }
+) {
+  const id = 'sf-message';
   const existedEl = document.getElementById(id);
   if (existedEl) {
     existedEl.style.opacity = '0';
-    await delay(400);
+    await delay(3000);
     existedEl.remove();
   }
 
@@ -160,10 +163,11 @@ export async function warning(msg: string, timeout = 4000) {
   el.style.top = '20px';
   el.style.left = '50%';
   el.style.border = '1px solid black';
-  el.style.color = '#663c00';
-  el.style.background = '#fff4e5';
-  el.style.borderColor = '#f5dab1';
+  el.style.color = colors.color;
+  el.style.background = colors.background;
+  el.style.borderColor = colors.border;
   el.style.transform = 'translateX(-50%);';
+  el.style.minWidth = '300px';
   el.style.transition = 'all 200ms';
   el.style.lineHeight = '1.5';
   el.style.padding = '16px 24px';
@@ -178,4 +182,40 @@ export async function warning(msg: string, timeout = 4000) {
     await delay(400);
     if (_el) _el.remove();
   }, timeout);
+}
+
+// export function createScheduleGrid(scheduleItems: ScheduleItem[], ctx: { colors: any }) {}
+export function warning(msg: string, timeout = 4000) {
+  return message(msg, timeout, {
+    color: '#663c00',
+    background: '#fff4e5',
+    border: '#f5dab1',
+  });
+}
+
+export function error(msg: string, timeout = 4000) {
+  return message(msg, timeout, {
+    color: '#5f2120',
+    border: '#fdeded',
+    background: '#fdeded',
+  });
+}
+
+export function success(msg: string, timeout = 4000) {
+  return message(msg, timeout, {
+    color: '#1e4620',
+    background: '#edf7ed',
+    border: '#edf7ed',
+  });
+}
+
+export function getQuantity(defaultVal = 1) {
+  const el = document.querySelector<HTMLInputElement>(
+    '#product-detail-sku-stepper_productDetail input'
+  );
+  if (!el) return defaultVal;
+
+  const value = Number(el.value);
+  if (value <= 0) return defaultVal;
+  return value;
 }

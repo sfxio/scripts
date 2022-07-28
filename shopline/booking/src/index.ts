@@ -25,7 +25,7 @@ import {
   SL_BTNS,
   SL_BUY_NOW,
 } from './constant';
-import { createCalendar, findVariant, loadScript, Schedule, warning } from './utils';
+import { createCalendar, findVariant, getQuantity, loadScript, Schedule, warning } from './utils';
 import { translation } from './translation';
 import { Colors, SfCtx, SkuData } from './type';
 // import './dayjs';
@@ -138,6 +138,14 @@ function getProduct() {
   return fetcher(`${BASE_URL}/api/product/products.json?handle=${gProductHandle}`).then(
     (res) => res.products[0]
   );
+}
+
+function prepare() {
+  logger.log('prepare...');
+  if (window.location.href.includes('shopflex_testing')) {
+    logger.log('testing..');
+    throw new Error('Shopflex testing...');
+  }
 }
 
 async function initBooking() {
@@ -311,7 +319,14 @@ function initEvent() {
       return;
     }
 
-    const quantity = ctx.gCurrentSku?.quantity || 1;
+    const quantity = getQuantity();
+    if (quantity > currentSchedule.capacity) {
+      warning(translation.capacity_exceed);
+
+      return;
+    }
+
+    logger.log(`add to cart - sku = ${ctx.gCurrentSku?.skuSeq}, quantity: ${quantity}`);
 
     try {
       await runAddToCart(
@@ -367,7 +382,7 @@ function initEvent() {
       logger.log('Add to cart successfully');
       gEventBus.emit('Cart::NavigateCart');
     } catch (err) {
-      alert('Failed to add to cart');
+      warning(translation.failed_to_add_to_cart);
       throw err;
     }
   });
@@ -375,6 +390,7 @@ function initEvent() {
 
 async function main() {
   try {
+    await prepare();
     await initBooking();
     await injectDep();
     await injectDep();

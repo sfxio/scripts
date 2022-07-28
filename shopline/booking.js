@@ -990,172 +990,6 @@
     });
   }({});
 
-  // reference:  https://stackoverflow.com/questions/6367010/average-2-hex-colors-together-in-javascript
-  // blend two hex colors together by an amount
-  function blendColors(colorA, colorB, amount = 0.5) {
-      const [rA, gA, bA] = colorA.match(/\w\w/g).map((c) => parseInt(c, 16));
-      const [rB, gB, bB] = colorB.match(/\w\w/g).map((c) => parseInt(c, 16));
-      const r = Math.round(rA + (rB - rA) * amount)
-          .toString(16)
-          .padStart(2, '0');
-      const g = Math.round(gA + (gB - gA) * amount)
-          .toString(16)
-          .padStart(2, '0');
-      const b = Math.round(bA + (bB - bA) * amount)
-          .toString(16)
-          .padStart(2, '0');
-      return `#${r}${g}${b}`;
-  }
-  const createHelloWeekColor = (primary, secondary, selected) => {
-      const css = `
-.__sf-calendar > * {
-  box-sizing: border-box;
-}
-
-.__sf-calendar {
-  box-sizing: border-box;
-  width: 100%;
-  margin: 0 auto;
-  user-select: none;
-  font-size: 1em;
-}
-.__sf-calendar .navigation {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  padding: 0;
-}
-.__sf-calendar .prev,
-.__sf-calendar .next {
-  padding: 1em;
-  cursor: pointer;
-}
-.__sf-calendar .period {
-  width: 100%;
-  font-size: 1.2em;
-  font-weight: 400;
-  text-align: center;
-}
-.__sf-calendar .week {
-  display: flex;
-  font-size: 0.9em;
-}
-.__sf-calendar .week.rtl {
-  flex-direction: row-reverse;
-}
-.__sf-calendar .month {
-  display: flex;
-  flex-wrap: wrap;
-  padding: 0.4em 0;
-  cursor: pointer;
-}
-.__sf-calendar .month.rtl {
-  flex-direction: row-reverse;
-}
-.__sf-calendar .day {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: calc(100% / 7);
-  padding: 1em;
-  cursor: pointer;
-}
-.__sf-calendar .day.is-disabled {
-  cursor: not-allowed;
-  opacity: 0.3;
-}
-
-.__sf-calendar .week {
-  color: ${primary}!important;
-  font-size: 1.2em;
-}
-
-.__sf-calendar .day.is-weekend {
-  color: ${selected};
-}
-
-.__sf-calendar .day.is-highlight {
-  background-color: ${secondary};
-  color: #fff;
-}
-
-.__sf-calendar .day.is-today {
-  background-color: ${primary};
-  color: #fff;
-}
-
-.__sf-calendar .day.is-selected {
-  background-color: ${selected} !important;
-  color: #fff !important;
-}
-
-.__sf-calendar .day.is-begin-range,
-.__sf-calendar .day.is-end-range {
-  background-color: ${primary} !important;
-  color: #fff !important;
-}
-
-.__sf-calendar .day.is-disabled {
-  cursor: not-allowed;
-  opacity: 0.33;
-}`;
-      return css;
-  };
-
-  /* eslint-disable no-param-reassign */
-  function useLoading(options = {}) {
-      let isLoading = false;
-      const run = (promise, timeout = 0) => {
-          isLoading = true;
-          let timer = null;
-          if (timeout) {
-              timer = setTimeout(() => {
-                  isLoading = false;
-              }, timeout);
-          }
-          const cleanup = () => {
-              isLoading = false;
-              if (timer) {
-                  clearTimeout(timer);
-                  timer = null;
-              }
-          };
-          if (options.before)
-              options.before();
-          promise = promise
-              .then((res) => {
-              if (options.after)
-                  options.after();
-              cleanup();
-              return res;
-          })
-              .catch((err) => {
-              if (options.after)
-                  options.after();
-              if (options.error)
-                  options.error();
-              cleanup();
-              throw err;
-          });
-          return promise;
-      };
-      return {
-          isLoading,
-          run,
-      };
-  }
-
-  const SF_BTNS = '__sf-product-button-list';
-  const SF_SELECT_BOOKING_DATE_CLASSES = '__sf-select-booking-date';
-  const SF_ADD_TO_CART_CLASSES = '__sf-add-to-cart';
-  const SF_CALENDAR_CLASSES = '__sf-calendar';
-  const SF_HELLO_WEEK_STYLE = '__sf-hello-week-style';
-  const SF_SCHEDULE_GRID_CONTAINER = '__sf-schedule-grid-container';
-  const SL_BTNS = 'product-button-list';
-  const SL_ADD_TO_CARTS = '__sl-custom-track-add-to-cart-btn';
-  const SL_BUY_NOW = '__sl-custom-track-product-detail-buy-now';
-
   var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
   function createCommonjsModule(fn, module) {
@@ -1496,20 +1330,187 @@
     });
   });
 
+  // reference:  https://stackoverflow.com/questions/6367010/average-2-hex-colors-together-in-javascript
+  // blend two hex colors together by an amount
+  function blendColors(colorA, colorB, amount = 0.5) {
+      const [rA, gA, bA] = colorA.match(/\w\w/g).map((c) => parseInt(c, 16));
+      const [rB, gB, bB] = colorB.match(/\w\w/g).map((c) => parseInt(c, 16));
+      const r = Math.round(rA + (rB - rA) * amount)
+          .toString(16)
+          .padStart(2, '0');
+      const g = Math.round(gA + (gB - gA) * amount)
+          .toString(16)
+          .padStart(2, '0');
+      const b = Math.round(bA + (bB - bA) * amount)
+          .toString(16)
+          .padStart(2, '0');
+      return `#${r}${g}${b}`;
+  }
+  const createHelloWeekColor = (primary, secondary, selected) => {
+      const css = `
+.__sf-calendar > * {
+  box-sizing: border-box;
+}
+
+.__sf-calendar {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0 auto;
+  user-select: none;
+  font-size: 1em;
+}
+.__sf-calendar .navigation {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0;
+}
+.__sf-calendar .prev,
+.__sf-calendar .next {
+  padding: 1em;
+  cursor: pointer;
+}
+.__sf-calendar .period {
+  width: 100%;
+  font-size: 1.2em;
+  font-weight: 400;
+  text-align: center;
+}
+.__sf-calendar .week {
+  display: flex;
+  font-size: 0.9em;
+}
+.__sf-calendar .week.rtl {
+  flex-direction: row-reverse;
+}
+.__sf-calendar .month {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 0.4em 0;
+  cursor: pointer;
+}
+.__sf-calendar .month.rtl {
+  flex-direction: row-reverse;
+}
+.__sf-calendar .day {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(100% / 7);
+  padding: 1em;
+  cursor: pointer;
+}
+.__sf-calendar .day.is-disabled {
+  cursor: not-allowed;
+  opacity: 0.3;
+}
+
+.__sf-calendar .week {
+  color: ${primary}!important;
+  font-size: 1.2em;
+}
+
+.__sf-calendar .day.is-weekend {
+  color: ${selected};
+}
+
+.__sf-calendar .day.is-highlight {
+  background-color: ${secondary};
+  color: #fff;
+}
+
+.__sf-calendar .day.is-today {
+  background-color: ${primary};
+  color: #fff;
+}
+
+.__sf-calendar .day.is-selected {
+  background-color: ${selected} !important;
+  color: #fff !important;
+}
+
+.__sf-calendar .day.is-begin-range,
+.__sf-calendar .day.is-end-range {
+  background-color: ${primary} !important;
+  color: #fff !important;
+}
+
+.__sf-calendar .day.is-disabled {
+  cursor: not-allowed;
+  opacity: 0.33;
+}`;
+      return css;
+  };
+
+  /* eslint-disable @typescript-eslint/comma-dangle */
+  /* eslint-disable no-param-reassign */
+  function useLoading(options = {}) {
+      let isLoading = false;
+      const run = (promise, timeout = 0) => {
+          isLoading = true;
+          let timer = null;
+          if (timeout) {
+              timer = setTimeout(() => {
+                  isLoading = false;
+              }, timeout);
+          }
+          const cleanup = () => {
+              isLoading = false;
+              if (timer) {
+                  clearTimeout(timer);
+                  timer = null;
+              }
+          };
+          if (options.before)
+              options.before();
+          promise = promise
+              .then((res) => {
+              if (options.after)
+                  options.after();
+              cleanup();
+              return res;
+          })
+              .catch((err) => {
+              if (options.after)
+                  options.after();
+              if (options.error)
+                  options.error();
+              cleanup();
+              throw err;
+          });
+          return promise;
+      };
+      return {
+          isLoading,
+          run,
+      };
+  }
+
+  const SF_BTNS = '__sf-product-button-list';
+  const SF_SELECT_BOOKING_DATE_CLASSES = '__sf-select-booking-date';
+  const SF_ADD_TO_CART_CLASSES = '__sf-add-to-cart';
+  const SF_CALENDAR_CLASSES = '__sf-calendar';
+  const SF_HELLO_WEEK_STYLE = '__sf-hello-week-style';
+  const SF_SCHEDULE_GRID_CONTAINER = '__sf-schedule-grid-container';
+  const SL_BTNS = 'product-button-list';
+  const SL_ADD_TO_CARTS = '__sl-custom-track-add-to-cart-btn';
+  const SL_BUY_NOW = '__sl-custom-track-product-detail-buy-now';
+
   // @ts-nocheck
   /* eslint-disable */
   const gLocale = (window.Shopline.locale || 'en').toLowerCase();
   const _translation = {
       select_booking_date: {
-          en: 'Select booking date',
-          zh: '选择预定日期',
+          en: 'Select date',
+          zh: '选择日期',
       },
       hidden: {
           en: 'Hidden',
           zh: '隐藏',
       },
       add_to_cart: {
-          en: 'Add to carts',
+          en: 'Add to cart',
           zh: '添加到购物车',
       },
       please_select_a_sku_first: {
@@ -1523,6 +1524,14 @@
       please_select_a_valid_booking_date: {
           en: 'Please select a valid booking date',
           zh: '请选择有效的预约日期',
+      },
+      failed_to_add_to_cart: {
+          en: 'Failed to add to cart',
+          zh: '加入购物车失败',
+      },
+      capacity_exceed: {
+          en: 'Capacity exceed',
+          zh: '容量超额',
       },
   };
   const translation = Object.keys(_translation).reduce((prev, key) => {
@@ -1637,16 +1646,15 @@
           container.remove();
       }
   }
-  // export function createScheduleGrid(scheduleItems: ScheduleItem[], ctx: { colors: any }) {}
-  async function warning(msg, timeout = 4000) {
-      const id = 'sf-warning';
+  async function message(msg, timeout, colors) {
+      const id = 'sf-message';
       const existedEl = document.getElementById(id);
       if (existedEl) {
           existedEl.style.opacity = '0';
-          await delay(400);
+          await delay(3000);
           existedEl.remove();
       }
-      const el = document.createElement(`div`);
+      const el = document.createElement('div');
       el.id = id;
       el.innerHTML = msg;
       el.style.position = 'fixed';
@@ -1655,24 +1663,42 @@
       el.style.top = '20px';
       el.style.left = '50%';
       el.style.border = '1px solid black';
-      el.style.color = `#663c00`;
-      el.style.background = `#fff4e5`;
-      el.style.borderColor = `#f5dab1`;
+      el.style.color = colors.color;
+      el.style.background = colors.background;
+      el.style.borderColor = colors.border;
       el.style.transform = 'translateX(-50%);';
+      el.style.minWidth = '300px';
       el.style.transition = 'all 200ms';
       el.style.lineHeight = '1.5';
       el.style.padding = '16px 24px';
       el.style.opacity = '1';
       document.body.appendChild(el);
       setTimeout(async () => {
-          const el = document.getElementById(id);
-          if (!el)
+          const _el = document.getElementById(id);
+          if (!_el)
               return;
-          el.style.opacity = '0';
+          _el.style.opacity = '0';
           await delay(400);
-          if (el)
-              el.remove();
+          if (_el)
+              _el.remove();
       }, timeout);
+  }
+  // export function createScheduleGrid(scheduleItems: ScheduleItem[], ctx: { colors: any }) {}
+  function warning(msg, timeout = 4000) {
+      return message(msg, timeout, {
+          color: '#663c00',
+          background: '#fff4e5',
+          border: '#f5dab1',
+      });
+  }
+  function getQuantity(defaultVal = 1) {
+      const el = document.querySelector('#product-detail-sku-stepper_productDetail input');
+      if (!el)
+          return defaultVal;
+      const value = Number(el.value);
+      if (value <= 0)
+          return defaultVal;
+      return value;
   }
 
   /* eslint-disable object-curly-newline */
@@ -1706,7 +1732,7 @@
       error: (...args) => console.error('[SHOPFLEX ERROR]: ', ...args),
   };
   // @ts-ignore
-  let $ = window.$;
+  // let $: JQueryStatic = window.$;
   // if (!$) {
   //   const script = document.createElement('script');
   //   script.async = true;
@@ -1779,6 +1805,13 @@
   function getProduct() {
       return fetcher(`${BASE_URL}/api/product/products.json?handle=${gProductHandle}`).then((res) => res.products[0]);
   }
+  function prepare() {
+      logger.log('prepare...');
+      if (window.location.href.includes('shopflex_testing')) {
+          logger.log('testing..');
+          throw new Error('Shopflex testing...');
+      }
+  }
   async function initBooking() {
       ctx.gProduct = await getProduct();
       logger.log('product: ', ctx.gProduct);
@@ -1839,7 +1872,7 @@
       const { isLoading: isAddingToCartLoading, run: runAddToCart } = useLoading({
           before: () => {
               content = sfAddToCartBtn.innerHTML;
-              sfAddToCartBtn.innerHTML = `Loading...`;
+              sfAddToCartBtn.innerHTML = 'Loading...';
               sfAddToCartBtn.disabled = true;
           },
           after: () => {
@@ -1916,7 +1949,12 @@
               warning(translation.please_select_a_valid_booking_date);
               return;
           }
-          const quantity = ((_b = ctx.gCurrentSku) === null || _b === void 0 ? void 0 : _b.quantity) || 1;
+          const quantity = getQuantity();
+          if (quantity > currentSchedule.capacity) {
+              warning(translation.capacity_exceed);
+              return;
+          }
+          logger.log(`add to cart - sku = ${(_b = ctx.gCurrentSku) === null || _b === void 0 ? void 0 : _b.skuSeq}, quantity: ${quantity}`);
           try {
               await runAddToCart(fetcher(`${BASE_URL}/api/carts/ajax-cart/add.js`, {
                   method: 'post',
@@ -1968,13 +2006,14 @@
               gEventBus.emit('Cart::NavigateCart');
           }
           catch (err) {
-              alert('Failed to add to cart');
+              warning(translation.failed_to_add_to_cart);
               throw err;
           }
       });
   }
   async function main() {
       try {
+          await prepare();
           await initBooking();
           await injectDep();
           await injectDep();
