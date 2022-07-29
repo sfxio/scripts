@@ -33,6 +33,10 @@ const _translation = {
     en: 'Failed to add to cart',
     zh: '加入购物车失败',
   },
+  failed_to_find_the_schedule: {
+    en: 'Failed to find the schedule',
+    zh: '找不到排期信息',
+  },
   capacity_exceed: {
     en:
       'The capacity is excessive, the effective capacity is {{capacity}}, and the current purchase quantity is {{quantity}}',

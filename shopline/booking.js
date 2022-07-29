@@ -1532,6 +1532,10 @@
           en: 'Failed to add to cart',
           zh: '加入购物车失败',
       },
+      failed_to_find_the_schedule: {
+          en: 'Failed to find the schedule',
+          zh: '找不到排期信息',
+      },
       capacity_exceed: {
           en: 'The capacity is excessive, the effective capacity is {{capacity}}, and the current purchase quantity is {{quantity}}',
           zh: '容量超额，有效容量为{{capacity}}，当前购买的数量为{{quantity}}。',
@@ -2004,10 +2008,15 @@
           const scheduleData = await fetcher(makeUrl('https://api.shopflex.io/reserve/sku/datePlanList', {
               platformProductId: ctx.gProduct.id,
               platformVariantId: sku,
-          })).then((res) => {
+          }))
+              .then((res) => {
               if (res.code === 200)
                   return res.data;
               return Promise.reject(new Error(`Failed to fetch schedule data, platformProductId = ${ctx.gProduct.id}, platformVariantId = ${sku}`));
+          })
+              .catch((err) => {
+              warning(translation.failed_to_find_the_schedule);
+              throw err;
           });
           logger.log('scheduleData: ', scheduleData);
           ctx.gCurrentSchedules = scheduleData;
@@ -2155,7 +2164,7 @@
   async function main() {
       try {
           logger.log('booking start...');
-          logger.log('current version: 1.2');
+          logger.log('current version: 1.3');
           await prepare();
           await initBooking();
           // await injectDep();

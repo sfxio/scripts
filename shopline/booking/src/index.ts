@@ -258,14 +258,19 @@ function initEvent() {
         platformProductId: ctx.gProduct.id,
         platformVariantId: sku,
       })
-    ).then((res: any) => {
-      if (res.code === 200) return res.data;
-      return Promise.reject(
-        new Error(
-          `Failed to fetch schedule data, platformProductId = ${ctx.gProduct.id}, platformVariantId = ${sku}`
-        )
-      );
-    });
+    )
+      .then((res: any) => {
+        if (res.code === 200) return res.data;
+        return Promise.reject(
+          new Error(
+            `Failed to fetch schedule data, platformProductId = ${ctx.gProduct.id}, platformVariantId = ${sku}`
+          )
+        );
+      })
+      .catch((err) => {
+        warning(translation.failed_to_find_the_schedule);
+        throw err;
+      });
 
     logger.log('scheduleData: ', scheduleData);
 
@@ -436,7 +441,7 @@ function initEvent() {
 async function main() {
   try {
     logger.log('booking start...');
-    logger.log('current version: 1.2');
+    logger.log('current version: 1.3');
     await prepare();
     await initBooking();
     // await injectDep();
