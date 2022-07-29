@@ -1561,23 +1561,6 @@
   }, Object.create(null));
 
   /* eslint-disable @typescript-eslint/indent */
-  function loadScript(src, id, options = {}) {
-      return new Promise((resolve, reject) => {
-          const el = document.querySelector(`script#${id}`);
-          if (el)
-              return resolve('ok');
-          const script = document.createElement('script');
-          script.src = src;
-          script.id = id;
-          Object.keys(options).forEach((key) => {
-              // @ts-ignore
-              script[key] = options[key];
-          });
-          document.body.appendChild(script);
-          script.addEventListener('load', () => resolve('ok'));
-          script.addEventListener('error', (err) => reject(err));
-      });
-  }
   const delay = (timeout = 400) => new Promise((resolve) => {
       setTimeout(resolve, timeout);
   });
@@ -1856,21 +1839,6 @@
       gSelectedDate: null,
   };
   const BASE_URL = window.origin;
-  // @ts-ignore
-  // let $: JQueryStatic = window.$;
-  // if (!$) {
-  //   const script = document.createElement('script');
-  //   script.async = true;
-  //   script.src = 'https://code.jquery.com/jquery-3.6.0.min.js';
-  //   script.crossOrigin = 'anonymous';
-  //   script.integrity = 'sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=';
-  //   script.addEventListener('load', () => {
-  //     logger.log('init jquery');
-  //     // @ts-ignore
-  //     $ = window.$;
-  //   });
-  //   document.body.appendChild(script);
-  // }
   const _fetch = window.fetch;
   const makeUrl = (url, params = {}) => {
       const searchParams = new URLSearchParams(params);
@@ -1883,14 +1851,6 @@
       options.method = options.method || 'get';
       return _fetch(url, options).then((res) => res.json());
   };
-  // interface ViewContent {
-  //   content_sku_id: string;
-  //   content_category: string;
-  //   currency: string;
-  //   value: string;
-  //   quantity: number;
-  //   price: string;
-  // }
   // @ts-ignore
   const gShopline = window.Shopline;
   const gEventBus = gShopline.event;
@@ -1924,7 +1884,7 @@
           //   el.innerHTML = jqueryToastCss;
           //   document.head.appendChild(el);
           // }
-          resolve('');
+          resolve(true);
       });
   }
   function getProduct() {
@@ -1938,25 +1898,32 @@
       }
   }
   async function initBooking() {
-      ctx.gProduct = await getProduct();
-      logger.log('product: ', ctx.gProduct);
-      if (!ctx.gProduct) {
+      const product = await getProduct();
+      ctx.gProduct = product;
+      logger.log('product: ', product);
+      if (!product) {
           // logger.error('Failed to find current product: ');
           throw new Error('Failed to find current product: ');
+      }
+      if (!Array.isArray(product.tags)) {
+          throw new Error('Current product is not a booking product');
+      }
+      if (!product.tags.includes('booking')) {
+          throw new Error('Current product is not a booking product');
       }
   }
   async function injectDep() {
       logger.log('injectDep...');
       _initStyle();
-      if (!$) {
-          await loadScript('https://code.jquery.com/jquery-3.6.0.min.js', 'sf-jquery', {
-              crossOrigin: 'anonymous',
-              integrity: 'sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=',
-              async: true,
-          });
-          // @ts-ignore
-          $ = window.$;
-      }
+      // if (!$) {
+      //   await loadScript('https://code.jquery.com/jquery-3.6.0.min.js', 'sf-jquery', {
+      //     crossOrigin: 'anonymous',
+      //     integrity: 'sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=',
+      //     async: true,
+      //   });
+      //   // @ts-ignore
+      //   $ = window.$;
+      // }
       // initJqueryToast($);
   }
   function resetEl() {
@@ -2178,12 +2145,15 @@
   }
   async function main() {
       try {
+          logger.log('booking start...');
+          logger.log('current version: 1.0');
           await prepare();
           await initBooking();
-          await injectDep();
+          // await injectDep();
           await injectDep();
           await resetEl();
           await initEvent();
+          logger.log('booking end...');
       }
       catch (err) {
           logger.warn('booking error with ', err);

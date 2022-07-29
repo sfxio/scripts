@@ -50,23 +50,8 @@ export const ctx: SfCtx = {
 };
 
 const BASE_URL = window.origin;
-const IS_DEV = false;
-
 // @ts-ignore
-// let $: JQueryStatic = window.$;
-// if (!$) {
-//   const script = document.createElement('script');
-//   script.async = true;
-//   script.src = 'https://code.jquery.com/jquery-3.6.0.min.js';
-//   script.crossOrigin = 'anonymous';
-//   script.integrity = 'sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=';
-//   script.addEventListener('load', () => {
-//     logger.log('init jquery');
-//     // @ts-ignore
-//     $ = window.$;
-//   });
-//   document.body.appendChild(script);
-// }
+const IS_DEV = process.env.NODE_ENV !== 'production';
 
 const _fetch = window.fetch;
 const makeUrl = (url: string, params: Record<string, string> = {}) => {
@@ -82,15 +67,6 @@ const fetcher = (url: string, _options: RequestInit = {}) => {
 
   return _fetch(url, options).then((res) => res.json());
 };
-
-// interface ViewContent {
-//   content_sku_id: string;
-//   content_category: string;
-//   currency: string;
-//   value: string;
-//   quantity: number;
-//   price: string;
-// }
 
 // @ts-ignore
 const gShopline = window.Shopline as any;
@@ -134,7 +110,7 @@ function _initStyle() {
     //   document.head.appendChild(el);
     // }
 
-    resolve('');
+    resolve(true);
   });
 }
 
@@ -148,31 +124,39 @@ function prepare() {
   logger.log('prepare...');
   if (window.location.href.includes('shopflex_testing')) {
     logger.log('testing..');
+
     if (!IS_DEV) throw new Error('Shopflex testing...');
   }
 }
 
 async function initBooking() {
-  ctx.gProduct = await getProduct();
-  logger.log('product: ', ctx.gProduct);
-  if (!ctx.gProduct) {
+  const product = await getProduct();
+  ctx.gProduct = product;
+  logger.log('product: ', product);
+  if (!product) {
     // logger.error('Failed to find current product: ');
     throw new Error('Failed to find current product: ');
+  }
+  if (!Array.isArray(product.tags)) {
+    throw new Error('Current product is not a booking product');
+  }
+  if (!product.tags.includes('booking')) {
+    throw new Error('Current product is not a booking product');
   }
 }
 
 async function injectDep() {
   logger.log('injectDep...');
   _initStyle();
-  if (!$) {
-    await loadScript('https://code.jquery.com/jquery-3.6.0.min.js', 'sf-jquery', {
-      crossOrigin: 'anonymous',
-      integrity: 'sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=',
-      async: true,
-    });
-    // @ts-ignore
-    $ = window.$;
-  }
+  // if (!$) {
+  //   await loadScript('https://code.jquery.com/jquery-3.6.0.min.js', 'sf-jquery', {
+  //     crossOrigin: 'anonymous',
+  //     integrity: 'sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=',
+  //     async: true,
+  //   });
+  //   // @ts-ignore
+  //   $ = window.$;
+  // }
   // initJqueryToast($);
 }
 
@@ -439,12 +423,15 @@ function initEvent() {
 
 async function main() {
   try {
+    logger.log('booking start...');
+    logger.log('current version: 1.0');
     await prepare();
     await initBooking();
-    await injectDep();
+    // await injectDep();
     await injectDep();
     await resetEl();
     await initEvent();
+    logger.log('booking end...');
   } catch (err) {
     logger.warn('booking error with ', err);
   }

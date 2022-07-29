@@ -6,6 +6,7 @@ import typescript from 'rollup-plugin-typescript2';
 import json from 'rollup-plugin-json';
 import { babel } from '@rollup/plugin-babel';
 import pkg from './package.json';
+import replace from 'rollup-plugin-replace';
 
 const libraryName = 'index';
 
@@ -21,6 +22,9 @@ export default {
     include: 'src/**',
   },
   plugins: [
+    replace({
+      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+    }),
     // Allow json resolution
     json(),
     // Compile TypeScript files
