@@ -2155,7 +2155,7 @@
   async function main() {
       try {
           logger.log('booking start...');
-          logger.log('current version: 1.0');
+          logger.log('current version: 1.1');
           await prepare();
           await initBooking();
           // await injectDep();
