@@ -134,12 +134,12 @@ function prepare() {
 }
 
 async function initBooking() {
-  gEventBus.on('DataReport::InitiateCheckout', (data: any) => {
-    console.log('DataReport::InitiateCheckout: ', data);
-  });
-  gEventBus.on('DataReport::CompleteOrder', (data: any) => {
-    console.log('DataReport::CompleteOrder', data);
-  });
+  // gEventBus.on('DataReport::InitiateCheckout', (data: any) => {
+  //   console.log('DataReport::InitiateCheckout: ', data);
+  // });
+  // gEventBus.on('DataReport::CompleteOrder', (data: any) => {
+  //   console.log('DataReport::CompleteOrder', data);
+  // });
 
   const product = await getProduct();
   ctx.gProduct = product;
