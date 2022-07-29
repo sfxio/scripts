@@ -1901,15 +1901,15 @@
       }
   }
   async function initBooking() {
-      const product = await getProduct();
-      ctx.gProduct = product;
-      logger.log('product: ', product);
       gEventBus.on('DataReport::InitiateCheckout', (data) => {
           console.log('DataReport::InitiateCheckout: ', data);
       });
       gEventBus.on('DataReport::CompleteOrder', (data) => {
           console.log('DataReport::CompleteOrder', data);
       });
+      const product = await getProduct();
+      ctx.gProduct = product;
+      logger.log('product: ', product);
       if (!product) {
           // logger.error('Failed to find current product: ');
           throw new Error('Failed to find current product: ');
@@ -2155,7 +2155,7 @@
   async function main() {
       try {
           logger.log('booking start...');
-          logger.log('current version: 1.1');
+          logger.log('current version: 1.2');
           await prepare();
           await initBooking();
           // await injectDep();
