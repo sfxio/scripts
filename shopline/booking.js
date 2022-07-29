@@ -1864,7 +1864,10 @@
   gShopline.handle;
   // eslint-disable-next-line @typescript-eslint/naming-convention, no-underscore-dangle
   const _productURL = decodeURIComponent(window.location.pathname).split('/');
-  const gProductHandle = _productURL[_productURL.length - 1];
+  let gProductHandle = '';
+  if (_productURL && _productURL.length) {
+      gProductHandle = _productURL[_productURL.length - 1];
+  }
   // let gCurrentSku: SkuData | null = null;
   // let gProduct: any = null;
   // let gCurrentCalendar: null | HelloWeek = null;
@@ -1901,6 +1904,12 @@
       const product = await getProduct();
       ctx.gProduct = product;
       logger.log('product: ', product);
+      gEventBus.on('DataReport::InitiateCheckout', (data) => {
+          console.log('DataReport::InitiateCheckout: ', data);
+      });
+      gEventBus.on('DataReport::CompleteOrder', (data) => {
+          console.log('DataReport::CompleteOrder', data);
+      });
       if (!product) {
           // logger.error('Failed to find current product: ');
           throw new Error('Failed to find current product: ');
