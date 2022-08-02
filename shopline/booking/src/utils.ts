@@ -107,7 +107,7 @@ export class Schedule {
 
     const container = document.createElement('div');
     container.classList.add(SF_SCHEDULE_GRID_CONTAINER);
-    const { primary, activeColor } = this.ctx.colors;
+    const { primary, activeColor, secondary } = this.ctx.colors;
     const { locations, resources } = this.ctx;
     const content = scheduleItems
       .map((item, index) => {
@@ -118,7 +118,7 @@ export class Schedule {
         const data = `data-type="schedule-item" data-index="${index}" data-start="${start} data-end="${end}"`;
 
         return `<div class="schedule-item" 
-            style="background: ${primary}; color: #ffffff; width: 96px; height: 96px; cursor: pointer; display: flex; flex-direction: column; justify-content: center; line-height: 1.5; margin-bottom: 8px; text-align: center;"
+            style="background: ${secondary}; color: #000; width: 96px; height: 96px; cursor: pointer; display: flex; flex-direction: column; justify-content: center; line-height: 1.5; margin-bottom: 8px; text-align: center;"
             ${data}
           >
             <div ${data}>${translation.got_it_on}</div>
@@ -202,8 +202,10 @@ export class Schedule {
         if (String(idx) === String(index)) {
           el.classList.add('active');
           el.style.background = activeColor;
+          el.style.color = '#fff';
         } else {
-          el.style.background = primary;
+          el.style.background = secondary;
+          el.style.color = '#000';
           el.classList.remove('active');
         }
       });

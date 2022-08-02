@@ -1417,7 +1417,7 @@
 
 .__sf-calendar .day.is-highlight {
   background-color: ${secondary};
-  color: #fff;
+  color: #000;
 }
 
 .__sf-calendar .day.is-today {
@@ -1605,7 +1605,7 @@
               return;
           const container = document.createElement('div');
           container.classList.add(SF_SCHEDULE_GRID_CONTAINER);
-          const { primary, activeColor } = this.ctx.colors;
+          const { primary, activeColor, secondary } = this.ctx.colors;
           const { locations, resources } = this.ctx;
           const content = scheduleItems
               .map((item, index) => {
@@ -1615,7 +1615,7 @@
               const date = dayjs_min(startTime).format('YYYY-MM-DD');
               const data = `data-type="schedule-item" data-index="${index}" data-start="${start} data-end="${end}"`;
               return `<div class="schedule-item" 
-            style="background: ${primary}; color: #ffffff; width: 96px; height: 96px; cursor: pointer; display: flex; flex-direction: column; justify-content: center; line-height: 1.5; margin-bottom: 8px; text-align: center;"
+            style="background: ${secondary}; color: #000; width: 96px; height: 96px; cursor: pointer; display: flex; flex-direction: column; justify-content: center; line-height: 1.5; margin-bottom: 8px; text-align: center;"
             ${data}
           >
             <div ${data}>${translation.got_it_on}</div>
@@ -1692,9 +1692,11 @@
                   if (String(idx) === String(index)) {
                       el.classList.add('active');
                       el.style.background = activeColor;
+                      el.style.color = '#fff';
                   }
                   else {
-                      el.style.background = primary;
+                      el.style.background = secondary;
+                      el.style.color = '#000';
                       el.classList.remove('active');
                   }
               });
@@ -1859,8 +1861,12 @@
   const gShopline = window.Shopline;
   const gEventBus = gShopline.event;
   const gColors = ((_b = (_a = gShopline.theme) === null || _a === void 0 ? void 0 : _a.settings) === null || _b === void 0 ? void 0 : _b.colors) || {};
-  const { primary = '#42a298', pageBg = '#fff', secondary = blendColors(primary, pageBg, 0.4), } = gColors;
-  const activeColor = gColors.activeColor || ((_c = gShopline.theme) === null || _c === void 0 ? void 0 : _c.settings.color_tag_background) || '#e32619';
+  let { primary = '#42a298', pageBg = '#fff', secondary = blendColors(primary, pageBg, 0.4), } = gColors;
+  let activeColor = gColors.activeColor || ((_c = gShopline.theme) === null || _c === void 0 ? void 0 : _c.settings.color_tag_background) || '#e32619';
+  primary = '#1a73e8';
+  pageBg = '#fff';
+  secondary = '#d2e3fc';
+  activeColor = primary;
   logger.log('primary color: ', primary);
   logger.log('secondary color: ', secondary);
   logger.log('activeColor color: ', activeColor);

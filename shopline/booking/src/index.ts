@@ -72,13 +72,17 @@ const fetcher = (url: string, _options: RequestInit = {}) => {
 const gShopline = window.Shopline as any;
 const gEventBus = gShopline.event;
 const gColors: Colors = gShopline.theme?.settings?.colors || {};
-const {
+let {
   primary = '#42a298',
   pageBg = '#fff',
   secondary = blendColors(primary, pageBg, 0.4),
 } = gColors;
-const activeColor: string =
+let activeColor: string =
   gColors.activeColor || gShopline.theme?.settings.color_tag_background || '#e32619';
+primary = '#1a73e8';
+pageBg = '#fff';
+secondary = '#d2e3fc';
+activeColor = primary;
 logger.log('primary color: ', primary);
 logger.log('secondary color: ', secondary);
 logger.log('activeColor color: ', activeColor);

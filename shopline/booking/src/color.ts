@@ -86,7 +86,7 @@ export const createHelloWeekColor = (primary: string, secondary: string, selecte
 
 .__sf-calendar .day.is-highlight {
   background-color: ${secondary};
-  color: #fff;
+  color: #000;
 }
 
 .__sf-calendar .day.is-today {
