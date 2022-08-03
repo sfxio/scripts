@@ -69,6 +69,7 @@ export const createHelloWeekColor = (primary: string, secondary: string, selecte
   width: calc(100% / 7);
   padding: 1em;
   cursor: pointer;
+  border: 1px solid transparent;
 }
 .__sf-calendar .day.is-disabled {
   cursor: not-allowed;
@@ -90,8 +91,9 @@ export const createHelloWeekColor = (primary: string, secondary: string, selecte
 }
 
 .__sf-calendar .day.is-today {
-  background-color: ${primary};
-  color: #fff;
+  color: #000;
+  background-color: #fff;
+  border-color: ${selected};
 }
 
 .__sf-calendar .day.is-selected {

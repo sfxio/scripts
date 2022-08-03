@@ -1400,6 +1400,7 @@
   width: calc(100% / 7);
   padding: 1em;
   cursor: pointer;
+  border: 1px solid transparent;
 }
 .__sf-calendar .day.is-disabled {
   cursor: not-allowed;
@@ -1421,8 +1422,9 @@
 }
 
 .__sf-calendar .day.is-today {
-  background-color: ${primary};
-  color: #fff;
+  color: #000;
+  background-color: #fff;
+  border-color: ${selected};
 }
 
 .__sf-calendar .day.is-selected {
@@ -1619,7 +1621,7 @@
             ${data}
           >
             <div ${data}>${translation.got_it_on}</div>
-            <div ${data}>${date}</div>
+            <div ${data}>${ctx.selectedDate || date}</div>
             <div ${data}>${start}~${end}</div>
             <div ${data}></div>
           </div>`;
@@ -1863,10 +1865,10 @@
   const gColors = ((_b = (_a = gShopline.theme) === null || _a === void 0 ? void 0 : _a.settings) === null || _b === void 0 ? void 0 : _b.colors) || {};
   let { primary = '#42a298', pageBg = '#fff', secondary = blendColors(primary, pageBg, 0.4), } = gColors;
   let activeColor = gColors.activeColor || ((_c = gShopline.theme) === null || _c === void 0 ? void 0 : _c.settings.color_tag_background) || '#e32619';
-  primary = '#1a73e8';
-  pageBg = '#fff';
-  secondary = '#d2e3fc';
-  activeColor = primary;
+  // primary = '#1a73e8';
+  // pageBg = '#fff';
+  // secondary = '#d2e3fc';
+  // activeColor = primary;
   logger.log('primary color: ', primary);
   logger.log('secondary color: ', secondary);
   logger.log('activeColor color: ', activeColor);
@@ -2052,6 +2054,7 @@
                           // sfBtns.insertBefore(el, runAddToCart);
                           sfBtns.insertBefore(el, sfAddToCartBtn);
                       }, schedule, {
+                          selectedDate: ctx.gSelectedDate,
                           colors: { primary, secondary, activeColor },
                           locations,
                           resources,

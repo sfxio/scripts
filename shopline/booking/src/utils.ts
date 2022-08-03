@@ -101,7 +101,7 @@ export class Schedule {
   constructor(
     insert: Function,
     public scheduleItems: ScheduleItem[],
-    public ctx: { colors: any; locations: any[]; resources: any[] }
+    public ctx: { colors: any; locations: any[]; resources: any[]; selectedDate?: any }
   ) {
     if (!this.scheduleItems || !this.scheduleItems.length) return;
 
@@ -122,7 +122,7 @@ export class Schedule {
             ${data}
           >
             <div ${data}>${translation.got_it_on}</div>
-            <div ${data}>${date}</div>
+            <div ${data}>${ctx.selectedDate || date}</div>
             <div ${data}>${start}~${end}</div>
             <div ${data}></div>
           </div>`;
