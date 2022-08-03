@@ -79,10 +79,10 @@ let {
 } = gColors;
 let activeColor: string =
   gColors.activeColor || gShopline.theme?.settings.color_tag_background || '#e32619';
-// primary = '#1a73e8';
-// pageBg = '#fff';
-// secondary = '#d2e3fc';
-// activeColor = primary;
+primary = '#1a73e8';
+pageBg = '#fff';
+secondary = '#d2e3fc';
+activeColor = primary;
 logger.log('primary color: ', primary);
 logger.log('secondary color: ', secondary);
 logger.log('activeColor color: ', activeColor);
