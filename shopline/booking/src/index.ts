@@ -137,6 +137,64 @@ function prepare() {
   }
 }
 
+// function initShoplineEvent() {
+//   const uri = gShopline.uri;
+//   // 在购物车页面
+//   logger.log('current uri: ', uri);
+//   if (uri && (uri.alias === 'Cart' || uri.path === '/cart')) {
+//     // console.log('cart');
+//     // gEventBus.on('DataReport::ViewContent', function (payload: any) {
+//     //   const { data } = payload;
+//     //   console.log('data: ', data);
+//     // });
+
+//     const skuInfo = Array.from(document.querySelectorAll('.trade-cart-sku-item-info'));
+//     const bookingProducts = skuInfo.filter((skuItem) => {
+//       const records = Array.from(skuItem.querySelectorAll('.trade-cart-sku-item-info-spec')).filter(
+//         (item) => {
+//           const keys = Array.from(
+//             item.querySelectorAll(
+//               '.trade-cart-sku-item-info-spec .trade-cart-sku-item-info-spec-key'
+//             )
+//           ).map((key) => key.innerHTML.toLowerCase());
+//           return !!keys.find((key) => key.startsWith('uniquecode'));
+//         }
+//       );
+//       return !!records.length;
+//     });
+
+//     bookingProducts.forEach((productEl) => {
+//       const targetRecord = Array.from(
+//         productEl.querySelectorAll('.trade-cart-sku-item-info-spec')
+//       ).find((recordEl) => {
+//         const keyEl = recordEl.querySelector('.trade-cart-sku-item-info-spec-key');
+//         return keyEl?.innerHTML.toLowerCase().startsWith('capacity');
+//       });
+//       if (targetRecord) {
+//         const capacity = Number(targetRecord.innerHTML);
+//         const stepper = productEl.querySelector('.trade-cart-sku-item-info-left-stepper');
+//         if (stepper) {
+//           const inputEl = stepper.querySelector<HTMLInputElement>('.cart-stepper-input');
+//           if (!inputEl) return;
+//           logger.log('inputEl: ', inputEl);
+
+//           inputEl.addEventListener('change', (e) => {
+//             console.log('change: ', inputEl);
+//           });
+//           inputEl.addEventListener('input', (e) => {
+//             console.log('change: ', inputEl);
+//           });
+//           let currentValue: any = stepper.querySelector<HTMLInputElement>('.cart-stepper-input')
+//             ?.value;
+//           currentValue = currentValue ? Number(currentValue) : undefined;
+//         }
+//       }
+//     });
+
+//     return Promise.reject(new Error('购物车页面，不需要执行后续逻辑。'));
+//   }
+// }
+
 async function initBooking() {
   // gEventBus.on('DataReport::InitiateCheckout', (data: any) => {
   //   console.log('DataReport::InitiateCheckout: ', data);
@@ -394,6 +452,13 @@ function initEvent() {
                   },
                   ...extra,
                   {
+                    name: 'Capacity',
+                    value: capacity,
+                    type: 'text',
+                    show: true,
+                    export: true,
+                  },
+                  {
                     name: 'Date',
                     value: dayjs(currentSchedule.startTime).format('YYYY-MM-DD'),
                     type: 'text',
@@ -448,6 +513,7 @@ async function main() {
     logger.log('booking start...');
     logger.log('current version: 1.3');
     await prepare();
+    // await initShoplineEvent();
     await initBooking();
     // await injectDep();
     await injectDep();
