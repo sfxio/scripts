@@ -451,13 +451,13 @@ function initEvent() {
                     type: 'text',
                   },
                   ...extra,
-                  {
-                    name: 'Capacity',
-                    value: capacity,
-                    type: 'text',
-                    show: true,
-                    export: true,
-                  },
+                  // {
+                  //   name: 'Capacity',
+                  //   value: capacity,
+                  //   type: 'text',
+                  //   show: true,
+                  //   export: true,
+                  // },
                   {
                     name: 'Date',
                     value: dayjs(currentSchedule.startTime).format('YYYY-MM-DD'),
