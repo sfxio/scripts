@@ -13,8 +13,24 @@ const logger = {
 
 // 封装函数使用最好
 // 提前定义好全局变量
-const cart_amount = document.querySelector(".cart-stepper-input").value;
+const cart_stepper_button = document.querySelector(".cart-stepper-button");
+const cart_stepper_input = document.querySelector(".cart-stepper-input");
+let cartAmount;
+function getInputValue(){
+  cartAmount = document.querySelector(".cart-stepper-input").value;
+  
+}
 
+cart_stepper_button.addEventListener("click",()=>{
+  getInputValue();
+  getPlanDetails();
+});
+cart_stepper_input.addEventListener("change",()=>{
+  getInputValue();
+  getPlanDetails();
+})
+
+getInputValue();
 
 if(Shopline.uri.alias == "Cart"){
   const ids = document.querySelector(
@@ -41,9 +57,9 @@ if(Shopline.uri.alias == "Cart"){
     plan_Details = res.data;
     console.log(plan_Details);
     // logger.log(plan_Details.plan);
-    planCapacity = plan_Details.plan.capacity;
+    // planCapacity = plan_Details.plan.capacity;
     resourcesCapacity = plan_Details.resources[0].capacity;
-    console.log("planCapacity", planCapacity);
+    // console.log("planCapacity", planCapacity);
     console.log("resourcesCapacity", resourcesCapacity);
   
   
@@ -79,7 +95,8 @@ if(Shopline.uri.alias == "Cart"){
   
     // const checkoutCover = document.querySelector(".checkoutCover");
     checkoutCover.addEventListener("click",()=>{
-      if (cart_amount > resourcesCapacity) {
+      getInputValue();
+      if (cartAmount > resourcesCapacity) {
         alert(`only ${resourcesCapacity} left, exceeded`);
         // main_tradeCart.style.cursor = "no-allowed";
       } else {
@@ -88,14 +105,12 @@ if(Shopline.uri.alias == "Cart"){
         alert("Order is OK, continue");
       }
     })
+
+
+
   }
-  
   getPlanDetails();
   }
-  
-  
-  
-  
 }
 
 
