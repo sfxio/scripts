@@ -19,7 +19,6 @@ const cart_stepper_input = document.querySelector(".cart-stepper-input");
 let cartAmount;
 function getInputValue(){
   cartAmount = document.querySelector(".cart-stepper-input").value;
-  
 }
 
 cart_stepper_button.addEventListener("click",()=>{
@@ -76,7 +75,7 @@ if(Shopline.uri.alias == "Cart"){
     // trade_cart_checkout_module.appendChild(divE);
     trade_cart_checkout_module.insertBefore(divE,main_tradeCart);
     let checkoutCover = document.querySelector("#checkoutCover");
-    checkoutCover.innerHTML = `<div class=checkoutCover style="width:100%;height:50px;z-index:10;background-color:#74716C;    cursor: pointer;vertical-align: middle;display: flex;justify-content: center;
+    checkoutCover.innerHTML = `<div class="checkoutCover" style="width:100%;height:50px;z-index:10;background-color:#74716C;    cursor: pointer;vertical-align: middle;display: flex;justify-content: center;
     align-items: center;
   ">
     <button style="border:none;cursor:pointer;background-color:#74716C;font-size:14px;color:#fff;font-weight:bold">click to check</button>
