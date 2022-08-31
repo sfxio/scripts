@@ -31,7 +31,7 @@ if(Shopline.uri.alias == "Cart"){
     ).then((res) => {
       console.log(res);
       return res.json();
-    }).catch(new error => );
+    })
     plan_Details = res.data;
     console.log(plan_Details);
     // logger.log(plan_Details.plan);
