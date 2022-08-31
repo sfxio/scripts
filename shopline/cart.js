@@ -1,3 +1,4 @@
+
 // JS here
 const logger = {
   log(...args) {
@@ -10,7 +11,7 @@ const logger = {
     console.error("[CART]: ", ...args);
   },
 };
-
+logger.log('start...')
 // 封装函数使用最好
 // 提前定义好全局变量
 const cart_stepper_button = document.querySelector(".cart-stepper-button");
