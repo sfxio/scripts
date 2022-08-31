@@ -11,7 +11,8 @@ const logger = {
   },
 };
 
-
+// 封装函数使用最好
+// 提前定义好全局变量
 const cart_amount = document.querySelector(".cart-stepper-input").value;
 
 
@@ -29,6 +30,7 @@ if(Shopline.uri.alias == "Cart"){
   let planCapacity;
   let resourcesCapacity;
   // let capacity ='';
+  // 需优化，catch 捕获错误
   async function getPlanDetails() {
     res = await fetch(
       `https://api.shopflex.io/reserve/planDetails?ids=${ids}`
