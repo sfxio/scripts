@@ -33,9 +33,13 @@ cart_stepper_input.addEventListener("change",()=>{
 getInputValue();
 
 if(Shopline.uri.alias == "Cart"){
-  const ids = document.querySelector(
-    ".trade-cart-sku-item-info-spec-value"
-  ).innerHTML;
+  // const ids = document.querySelector(
+  //   ".trade-cart-sku-item-info-spec-value"
+  // ).innerHTML;
+  // const ids = document.querySelector(
+  //   ".trade-cart-sku-item-info-spec-value"
+  // ).innerHTML;
+  const ids = localStorage.getItem("uniqueCode");
   console.log(ids);
   //  async function getPlanDetails(){
   //    await fetcher(`https://api.shopflex.io/reserve/planDetails?ids=${ids}`).then((res) => res.data);
@@ -58,7 +62,7 @@ if(Shopline.uri.alias == "Cart"){
     console.log(plan_Details);
     // logger.log(plan_Details.plan);
     // planCapacity = plan_Details.plan.capacity;
-    resourcesCapacity = plan_Details.resources[0].capacity;
+    resourcesCapacity = ids.endsWith(0)? 0 : plan_Details.resources[0].capacity;
     // console.log("planCapacity", planCapacity);
     console.log("resourcesCapacity", resourcesCapacity);
   
@@ -105,9 +109,6 @@ if(Shopline.uri.alias == "Cart"){
         alert("Order is OK, continue");
       }
     })
-
-
-
   }
   getPlanDetails();
   }
@@ -145,3 +146,4 @@ if(Shopline.uri.alias == "Cart"){
 //     }
 //   });
 // }
+
