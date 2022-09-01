@@ -14,23 +14,7 @@ const logger = {
 logger.log('start...')
 // 封装函数使用最好
 // 提前定义好全局变量
-const cart_stepper_button = document.querySelector(".cart-stepper-button");
-const cart_stepper_input = document.querySelector(".cart-stepper-input");
-let cartAmount;
-function getInputValue(){
-  cartAmount = document.querySelector(".cart-stepper-input").value;
-}
 
-cart_stepper_button.addEventListener("click",()=>{
-  getInputValue();
-  getPlanDetails();
-});
-cart_stepper_input.addEventListener("change",()=>{
-  getInputValue();
-  getPlanDetails();
-})
-
-getInputValue();
 
 const ids = localStorage.getItem("uniqueCode");
 if(Shopline.uri.alias == "Cart"){
@@ -51,6 +35,25 @@ if(Shopline.uri.alias == "Cart"){
   getPlanDetails();
   }
 }
+
+const cart_stepper_button = document.querySelector(".cart-stepper-button");
+const cart_stepper_input = document.querySelector(".cart-stepper-input");
+let cartAmount;
+function getInputValue(){
+  cartAmount = document.querySelector(".cart-stepper-input").value;
+}
+
+cart_stepper_button.addEventListener("click",()=>{
+  getInputValue();
+  getPlanDetails();
+});
+cart_stepper_input.addEventListener("change",()=>{
+  getInputValue();
+  getPlanDetails();
+})
+
+getInputValue();
+
 
 let res;
   let plan_Details = {};
