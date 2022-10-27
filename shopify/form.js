@@ -25,6 +25,7 @@
   }
 
   function queryElByClassName(className) {
+    if (!className) return null
     return document.querySelector('.' + className)
   }
 
@@ -116,26 +117,29 @@
   }
 
   function main() {
-    var shopflexData = window.__shopflex_data__ || {}
+    try {
+      var shopflexData = window.__shopflex_data__ || {}
 
-    console.log('Init')
-    console.log('ShopFlexData: ', shopflexData)
-    
-    /** @type { { extraClass: string, formUrl: string }[] } */
-    var forms = shopflexData.forms || []
-    var formList = filterAndFormatFormList(forms)
-    console.log('formList: ', formList)
-    
-    // formList = [
-    //   {formUrl: 'https://apiv2.shopflex.io/auth/trigger/k9stb9ysjb', extraClass: 'sf-uvclskp4ig'}
-    // ]
-    
-    for (var i = 0; i < formList.length; i++) {
-      var formItem = formList[i]
+      console.log('Init')
+      console.log('ShopFlexData: ', shopflexData)
+      
+      /** @type { { extraClass: string, formUrl: string }[] } */
+      var forms = shopflexData.forms || []
+      var formList = filterAndFormatFormList(forms)
+      console.log('formList: ', formList)
+      
+      // formList = [
+      //   {formUrl: 'https://apiv2.shopflex.io/auth/trigger/k9stb9ysjb', extraClass: 'sf-uvclskp4ig'}
+      // ]
+      
+      for (var i = 0; i < formList.length; i++) {
+        var formItem = formList[i]
 
-      listenSubmit(formItem)
+        listenSubmit(formItem)
+      }
+    } catch (err) {
+      console.log('sf error: ', err)
     }
-
   }
 
   nextTick(main)
