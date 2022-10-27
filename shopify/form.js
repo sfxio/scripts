@@ -113,7 +113,7 @@
       
       if (extraClass && formUrl) res.push({ extraClass: extraClass, formUrl: formUrl })
     }
-    return forms    
+    return res
   }
 
   function main() {
