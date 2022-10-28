@@ -52,6 +52,24 @@
     return null
   }
 
+  /**
+   * @param { string } formIds 
+   * @returns { string[] }
+   */
+  function getFormIdList(formIds) {
+    formIds = formIds
+    formIds = trim(formIds)
+    var ids = formIds.split(',')
+    var res = []
+    for (var i = 0; i < ids.length; i++) {
+      var id = trim(ids[i])
+      if (id) {
+        res.push(id)
+      }
+    }
+    return res
+  }
+
   function submitToShopFlex(url, jsonData) {
     // console.log('data: ', data)
     console.log('submit: url = ', url)
@@ -103,37 +121,24 @@
     })
   }
 
-  /** filter and validate form item */
-  function filterAndFormatFormList(forms) {
-    var res = []
-    for (var i = 0; i < forms.length; i++) {
-      var item = forms[i];
-      var extraClass = trim(item.extraClass || '')
-      var formUrl = trim(item.formUrl || '')
-      
-      if (extraClass && formUrl) res.push({ extraClass: extraClass, formUrl: formUrl })
-    }
-    return res
-  }
-
   function main() {
     try {
       var shopflexData = window.__shopflex_data__ || {}
+      var formIds = shopflexData.formIds || ''
+      var formIdList = getFormIdList(formIds)
+      window.__shopflex_data__.formIdList = formIdList
 
       console.log('Init')
       console.log('ShopFlexData: ', shopflexData)
-      
-      /** @type { { extraClass: string, formUrl: string }[] } */
-      var forms = shopflexData.forms || []
-      var formList = filterAndFormatFormList(forms)
-      console.log('formList: ', formList)
-      
-      // formList = [
-      //   {formUrl: 'https://apiv2.shopflex.io/auth/trigger/k9stb9ysjb', extraClass: 'sf-uvclskp4ig'}
-      // ]
-      
-      for (var i = 0; i < formList.length; i++) {
-        var formItem = formList[i]
+
+      for (var i = 0; i < formIdList.length; i++) {
+        var formId = formIdList[i]
+        var formUrl = 'https://apiv2.shopflex.io/auth/trigger/' + formId
+        var extraClass = 'sf-' + formId
+        var formItem = {
+          formUrl: formUrl,
+          extraClass: extraClass,
+        }
 
         listenSubmit(formItem)
       }
