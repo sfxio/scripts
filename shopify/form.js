@@ -134,7 +134,7 @@
       for (var i = 0; i < formIdList.length; i++) {
         var formId = formIdList[i]
         var formUrl = 'https://apiv2.shopflex.io/auth/trigger/' + formId
-        var extraClass = 'sf-' + formId
+        var extraClass = 'class-' + formId
         var formItem = {
           formUrl: formUrl,
           extraClass: extraClass,
