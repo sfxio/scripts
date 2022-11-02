@@ -52,6 +52,16 @@
     return null
   }
 
+  function getContext() {
+    var Shopify = window.Shopify || {}
+    var shop = Shopify.shop
+    var domain = window.origin
+    return {
+      shop: shop,
+      domain: domain,
+    }
+  }
+
   /**
    * @param { string } formIds 
    * @returns { string[] }
@@ -110,6 +120,7 @@
       var rawData = $form.serialize()
       var data = $form.serializeArray() || [];
       var values = [];
+      var context = getContext()
       
       for (var i = 0; i < data.length; i++) {
         // { name: '', value: '' }
@@ -117,7 +128,9 @@
         values.push(record.value);
       }
 
-      submitToShopFlex(formUrl, { raw_data: rawData, data: data, values: values })
+      submitToShopFlex(formUrl, { 
+        raw_data: rawData, data: data, values: values, context: context
+      })
     })
   }
 
