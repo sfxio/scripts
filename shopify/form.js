@@ -157,7 +157,7 @@
       var formIdList = getFormIdList(formIds)
       window.__shopflex_data__.formIdList = formIdList
 
-      console.log('Init')
+      console.log('Init0113')
       console.log('ShopFlexData: ', shopflexData)
 
       for (var i = 0; i < formIdList.length; i++) {
