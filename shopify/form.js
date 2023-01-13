@@ -24,17 +24,12 @@
     return str.trim()
   }
 
-  function queryElByClassName(className) {
+  function queryElsByClassName(className) {
     if (!className) return null
-    return document.querySelector('.' + className)
+    return document.querySelectorAll('.' + className)
   }
 
-  function getFormEl(className) {
-    var targetEl = queryElByClassName(className)
-    if (targetEl == null) return
-
-    var el = targetEl
-
+  function getFormEl(el) {
     if (el.tagName.toUpperCase() == 'FORM') return el
 
     var formEl = el.parentElement
@@ -50,6 +45,22 @@
     }
 
     return null
+  }
+
+  function getFormEls(className) {
+    var targetEls = queryElsByClassName(className)
+    if (!targetEls || !targetEls.length) return []
+    
+    var res = []
+    for (var i = 0; i < targetEls.length; i++) {
+      var el = targetEls[i]      
+      var formEl = getFormEl(el)
+      if (formEl) {
+        res.push(formEl)
+      }
+    }
+    
+    return res
   }
 
   function getContext() {
@@ -106,32 +117,37 @@
     var extraClass = trim(payload.extraClass)
     var formUrl = trim(payload.formUrl)
 
-    var formEl = getFormEl(extraClass)
-    if (!formEl) return
+    var formEls = getFormEls(extraClass)
+    if (!formEls || !formEls.length) return
 
-    formEl.addEventListener('submit', function handleSubmit() {
-      var $ = getJquery()
-      var $form = $(formEl)
+    for (var i = 0; i < formEls.length; i++) {
+      ;(function() {
+        var formEl = formEls[i];
+        formEl.addEventListener('submit', function handleSubmit() {
+          var $ = getJquery()
+          var $form = $(formEl)
 
-      if (!$form[0].checkValidity()) {
-        return
-      }
+          if (!$form[0].checkValidity()) {
+            return
+          }
 
-      var rawData = $form.serialize()
-      var data = $form.serializeArray() || [];
-      var values = [];
-      var context = getContext()
-      
-      for (var i = 0; i < data.length; i++) {
-        // { name: '', value: '' }
-        var record = data[i];
-        values.push(record.value);
-      }
+          var rawData = $form.serialize()
+          var data = $form.serializeArray() || [];
+          var values = [];
+          var context = getContext()
+          
+          for (var i = 0; i < data.length; i++) {
+            // { name: '', value: '' }
+            var record = data[i];
+            values.push(record.value);
+          }
 
-      submitToShopFlex(formUrl, { 
-        raw_data: rawData, data: data, values: values, context: context
-      })
-    })
+          submitToShopFlex(formUrl, { 
+            raw_data: rawData, data: data, values: values, context: context
+          })
+        })
+      })(i);
+    }
   }
 
   function main() {
