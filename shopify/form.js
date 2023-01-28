@@ -157,7 +157,7 @@
       var formIdList = getFormIdList(formIds)
       window.__shopflex_data__.formIdList = formIdList
 
-      console.log('Init0113')
+      console.log('Init0128')
       console.log('ShopFlexData: ', shopflexData)
 
       for (var i = 0; i < formIdList.length; i++) {
@@ -170,6 +170,13 @@
         }
 
         listenSubmit(formItem)
+        var ua = navigator.userAgent.toLowerCase();
+            var uaItem = {
+                adminUid:0,
+                code:'formUa',
+                val: ua
+            }
+       submitToShopFlex('https://api.shopflex.io/config/record',uaItem)
       }
     } catch (err) {
       console.log('sf error: ', err)
