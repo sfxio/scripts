@@ -91,7 +91,7 @@
     return res
   }
 
-  function submitToShopFlex(url, jsonData) {
+  function submitToShopFlex(url, jsonData,asyncType) {
     // console.log('data: ', data)
     console.log('submit: url = ', url)
 
@@ -99,6 +99,7 @@
     $.ajax({
       url: url,
       method: 'POST',
+      async: asyncType,
       data: JSON.stringify(jsonData),
       contentType: 'application/json; charset=utf-8',
       error: function(err) {
@@ -144,7 +145,7 @@
 
           submitToShopFlex(formUrl, { 
             raw_data: rawData, data: data, values: values, context: context
-          })
+          },false)
         })
       })(i);
     }
@@ -157,7 +158,7 @@
       var formIdList = getFormIdList(formIds)
       window.__shopflex_data__.formIdList = formIdList
 
-      console.log('Init0128')
+      console.log('Init0130')
       console.log('ShopFlexData: ', shopflexData)
 
       for (var i = 0; i < formIdList.length; i++) {
@@ -173,13 +174,20 @@
         var ua = navigator.userAgent.toLowerCase();
             var uaItem = {
                 adminUid:0,
-                code:'formUa',
+                code:'form0130_'+formId,
                 val: ua
             }
-       submitToShopFlex('https://api.shopflex.io/config/record',uaItem)
+       submitToShopFlex('https://api.shopflex.io/config/record',uaItem,true)
       }
     } catch (err) {
       console.log('sf error: ', err)
+          var ua = navigator.userAgent.toLowerCase();
+            var uaItem = {
+                adminUid:0,
+                code:'form0130Error',
+                val: ua+";"+ err.message + ':' +   err.lineNumber + '行'
+            }
+           submitToShopFlex('https://api.shopflex.io/config/record',uaItem,true)
     }
   }
 
